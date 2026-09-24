@@ -7,7 +7,7 @@ title: Honest Delivery Status Badges
 
 In life-critical emergency and disaster scenarios, a false delivery confirmation can cost human lives. Many conventional peer-to-peer messaging applications show "Sent" or "Delivered" the moment a message leaves the phone or touches any nearby device, even if that device never reaches the recipient.
 
-**NearLink strictly enforces Honest Delivery Statuses.**
+**OffMesh strictly enforces Honest Delivery Statuses.**
 
 ---
 

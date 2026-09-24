@@ -3,17 +3,18 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: 'OffMesh Documentation',
-  tagline: 'Stay Connected. Anywhere. — Decentralized Offline Smartphone Messaging & Opportunistic Store-and-Forward Mesh',
+  title: 'OffMesh',
+  tagline: 'Off-Grid, Delay-Tolerant Encrypted Mesh Messenger',
   favicon: 'img/favicon.ico',
 
-  url: 'https://offmesh.docs.local',
+  url: 'https://offmesh.simplicion.com',
   baseUrl: '/',
 
-  organizationName: 'offmesh',
-  projectName: 'offmesh-docs',
+  organizationName: 'Simplicion Private Limited',
+  projectName: 'offmesh',
 
   onBrokenLinks: 'warn',
+  onBrokenAnchors: 'ignore',
 
   i18n: {
     defaultLocale: 'en',
@@ -37,9 +38,9 @@ const config: Config = {
 
   themeConfig: {
     colorMode: {
-      defaultMode: 'dark',
+      defaultMode: 'light',
       disableSwitch: false,
-      respectPrefersColorScheme: false,
+      respectPrefersColorScheme: true,
     },
     navbar: {
       title: 'OffMesh',
@@ -49,15 +50,53 @@ const config: Config = {
       },
       items: [
         {
+          to: '/#features',
+          label: 'Features',
+          position: 'left',
+        },
+        {
+          to: '/#delivery-states',
+          label: 'Delivery States',
+          position: 'left',
+        },
+        {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
           label: 'Documentation',
         },
         {
-          href: 'http://localhost:3000/docs',
-          label: 'Interactive Swagger UI',
+          type: 'dropdown',
+          label: 'Play Store Compliance',
           position: 'left',
+          items: [
+            {
+              to: '/privacy',
+              label: 'Privacy Policy',
+            },
+            {
+              to: '/terms',
+              label: 'Terms of Service',
+            },
+            {
+              to: '/data-safety',
+              label: 'Google Play Data Safety',
+            },
+            {
+              to: '/deletion',
+              label: 'Account & Data Deletion',
+            },
+            {
+              to: '/contact',
+              label: 'Developer Details & Contact',
+            },
+          ],
+        },
+        {
+          to: '/#download',
+          label: 'Download APK',
+          position: 'right',
+          className: 'button button--primary button--sm navbar-download-btn',
         },
         {
           href: 'https://github.com/Prince364133/offline-messaging',
@@ -67,10 +106,35 @@ const config: Config = {
       ],
     },
     footer: {
-      style: 'dark',
+      style: 'light',
       links: [
         {
-          title: 'Architecture & Design',
+          title: 'Play Store Compliance & Legal',
+          items: [
+            {
+              label: 'Privacy Policy',
+              to: '/privacy',
+            },
+            {
+              label: 'Terms of Service',
+              to: '/terms',
+            },
+            {
+              label: 'Google Play Data Safety Disclosure',
+              to: '/data-safety',
+            },
+            {
+              label: 'Account & Data Deletion Instructions',
+              to: '/deletion',
+            },
+            {
+              label: 'Developer & Corporate Contact',
+              to: '/contact',
+            },
+          ],
+        },
+        {
+          title: 'Architecture & Protocols',
           items: [
             {
               label: 'High-Level Design (HLD)',
@@ -81,15 +145,6 @@ const config: Config = {
               to: '/docs/architecture/lld',
             },
             {
-              label: 'UI/UX Design System',
-              to: '/docs/ui-ux/design-system',
-            },
-          ],
-        },
-        {
-          title: 'Specifications',
-          items: [
-            {
               label: 'Cryptographic Protocols',
               to: '/docs/specifications/cryptography',
             },
@@ -97,14 +152,31 @@ const config: Config = {
               label: 'Microsecond Merkle Sync',
               to: '/docs/specifications/merkle-sync',
             },
+          ],
+        },
+        {
+          title: 'UI/UX & Design System',
+          items: [
             {
-              label: 'Honest Delivery Statuses',
+              label: 'Monochrome Minimal Design System',
+              to: '/docs/ui-ux/design-system',
+            },
+            {
+              label: 'Honest Delivery Status Badges',
               to: '/docs/ui-ux/honest-statuses',
+            },
+            {
+              label: 'Product UI/UX Principles',
+              to: '/docs/ui-ux/product-principles',
+            },
+            {
+              label: 'Screen Inventory Spec',
+              to: '/docs/ui-ux/screen-inventory-spec',
             },
           ],
         },
         {
-          title: 'Validation & Roadmap',
+          title: 'Validation & Downloads',
           items: [
             {
               label: 'Automated Test Matrix (35/35)',
@@ -115,13 +187,17 @@ const config: Config = {
               to: '/docs/empirical-validation/experiment-log',
             },
             {
-              label: 'Platform Status & Milestones',
-              to: '/docs/empirical-validation/status',
+              label: 'Direct APK Download (v1.0.1+2)',
+              href: 'pathname:///downloads/offmesh-v1.0.1.apk',
+            },
+            {
+              label: 'Google Play Release AAB',
+              href: 'pathname:///downloads/offmesh-v1.0.1.aab',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} NearLink Decentralized Mesh Project. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Simplicion Private Limited. OffMesh™ is a registered product of Simplicion Private Limited (New Delhi, India). Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

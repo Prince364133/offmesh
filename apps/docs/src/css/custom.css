@@ -1,40 +1,224 @@
 /**
- * NearLink Obsidian Dark Design System Overrides
+ * OffMesh Design System — Monochrome Minimal Theme
+ * Strictly adhering to OFFMESH_THEME.md, OFFMESH_DESIGN_SPEC.md & OFFMESH_UI_UX_PRINCIPLES.md
  */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 :root {
-  --ifm-color-primary: #00b4d8;
-  --ifm-color-primary-dark: #0096c7;
-  --ifm-color-primary-darker: #023e8a;
-  --ifm-color-primary-darkest: #03045e;
-  --ifm-color-primary-light: #48cae4;
-  --ifm-color-primary-lighter: #90e0ef;
-  --ifm-color-primary-lightest: #ade8f4;
-  --ifm-code-font-size: 92%;
+  /* Typography */
+  --ifm-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --ifm-font-family-monospace: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --ifm-font-size-base: 16px;
+  --ifm-line-height-base: 1.6;
+  --ifm-heading-font-weight: 700;
+
+  /* OffMesh Monochrome Minimal Light Tokens */
+  --offmesh-bg: #FFFFFF;
+  --offmesh-surface: #FFFFFF;
+  --offmesh-surface-subtle: #F7F7F8;
+  --offmesh-surface-raised: #FFFFFF;
+  --offmesh-text-primary: #111111;
+  --offmesh-text-secondary: #666666;
+  --offmesh-text-tertiary: #8A8A8A;
+  --offmesh-border: #E5E5E5;
+  --offmesh-border-strong: #CFCFCF;
+  --offmesh-action-primary: #111111;
+  --offmesh-action-primary-hover: #262626;
+  --offmesh-action-primary-pressed: #333333;
+  --offmesh-action-on-primary: #FFFFFF;
+  --offmesh-action-secondary: #F2F2F2;
+  --offmesh-action-secondary-hover: #E8E8E8;
+  --offmesh-action-secondary-text: #111111;
+
+  /* Semantic Status Colors */
+  --offmesh-status-pending: #8A6500;
+  --offmesh-status-pending-bg: #FEF7E6;
+  --offmesh-status-pending-border: #F3DC99;
+
+  --offmesh-status-forwarded: #007799;
+  --offmesh-status-forwarded-bg: #E6F7FC;
+  --offmesh-status-forwarded-border: #99E2F4;
+
+  --offmesh-status-uploaded: #475467;
+  --offmesh-status-uploaded-bg: #F2F4F7;
+  --offmesh-status-uploaded-border: #D0D5DD;
+
+  --offmesh-status-success: #167A45;
+  --offmesh-status-success-bg: #ECFDF3;
+  --offmesh-status-success-border: #A6F4C5;
+
+  --offmesh-status-warning: #A65300;
+  --offmesh-status-warning-bg: #FFFAEB;
+  --offmesh-status-warning-border: #FEDF89;
+
+  --offmesh-status-error: #B42318;
+  --offmesh-status-error-bg: #FEF3F2;
+  --offmesh-status-error-border: #FECDCA;
+
+  --offmesh-radius-sm: 8px;
+  --offmesh-radius-md: 12px;
+  --offmesh-radius-lg: 16px;
+  --offmesh-radius-full: 9999px;
+
+  /* Infima Overrides for Docusaurus */
+  --ifm-color-primary: #111111;
+  --ifm-color-primary-dark: #000000;
+  --ifm-color-primary-darker: #000000;
+  --ifm-color-primary-darkest: #000000;
+  --ifm-color-primary-light: #333333;
+  --ifm-color-primary-lighter: #444444;
+  --ifm-color-primary-lightest: #666666;
+
+  --ifm-background-color: var(--offmesh-bg);
+  --ifm-background-surface-color: var(--offmesh-surface);
+  --ifm-card-background-color: var(--offmesh-surface);
+  --ifm-font-color-base: var(--offmesh-text-primary);
+  --ifm-heading-color: var(--offmesh-text-primary);
+  --ifm-navbar-background-color: #FFFFFF;
+  --ifm-footer-background-color: #FAFAFA;
+  --ifm-footer-color: var(--offmesh-text-secondary);
+  --ifm-footer-link-color: var(--offmesh-text-primary);
+  --ifm-footer-title-color: var(--offmesh-text-primary);
+  --ifm-global-border-width: 1px;
+  --ifm-hr-border-color: var(--offmesh-border);
 }
 
 [data-theme='dark'] {
-  --ifm-background-color: #0A0E17;
-  --ifm-background-surface-color: #121824;
-  --ifm-card-background-color: #121824;
-  --ifm-navbar-background-color: #0A0E17;
-  --ifm-footer-background-color: #060910;
-  --ifm-color-primary: #00F5D4;
-  --ifm-color-primary-dark: #00d6b9;
-  --ifm-color-primary-darker: #00b89f;
-  --ifm-color-primary-darkest: #008573;
-  --ifm-color-primary-light: #26f6dc;
-  --ifm-color-primary-lighter: #4df8e3;
-  --ifm-color-primary-lightest: #80faed;
-  --ifm-heading-color: #F8F9FA;
-  --ifm-font-color-base: #E2E8F0;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 245, 212, 0.12);
+  --offmesh-bg: #0C0D0E;
+  --offmesh-surface: #141618;
+  --offmesh-surface-subtle: #1B1E22;
+  --offmesh-surface-raised: #181B1F;
+  --offmesh-text-primary: #F4F4F6;
+  --offmesh-text-secondary: #9DA4B0;
+  --offmesh-text-tertiary: #68707D;
+  --offmesh-border: #242830;
+  --offmesh-border-strong: #383E4A;
+  --offmesh-action-primary: #F4F4F6;
+  --offmesh-action-primary-hover: #FFFFFF;
+  --offmesh-action-primary-pressed: #E0E0E0;
+  --offmesh-action-on-primary: #0C0D0E;
+  --offmesh-action-secondary: #22262D;
+  --offmesh-action-secondary-hover: #2B3039;
+  --offmesh-action-secondary-text: #F4F4F6;
+
+  --offmesh-status-pending-bg: #2B2100;
+  --offmesh-status-pending-border: #664B00;
+  --offmesh-status-forwarded-bg: #002533;
+  --offmesh-status-forwarded-border: #005573;
+  --offmesh-status-uploaded-bg: #1B1F27;
+  --offmesh-status-uploaded-border: #323A48;
+  --offmesh-status-success-bg: #062817;
+  --offmesh-status-success-border: #0D5430;
+  --offmesh-status-warning-bg: #2E1500;
+  --offmesh-status-warning-border: #6E3700;
+  --offmesh-status-error-bg: #300C09;
+  --offmesh-status-error-border: #7A1910;
+
+  --ifm-color-primary: #F4F4F6;
+  --ifm-color-primary-dark: #E2E2E6;
+  --ifm-color-primary-darker: #D0D0D5;
+  --ifm-color-primary-darkest: #A8A8B2;
+  --ifm-color-primary-light: #FFFFFF;
+  --ifm-color-primary-lighter: #FFFFFF;
+  --ifm-color-primary-lightest: #FFFFFF;
+
+  --ifm-background-color: var(--offmesh-bg);
+  --ifm-background-surface-color: var(--offmesh-surface);
+  --ifm-card-background-color: var(--offmesh-surface);
+  --ifm-font-color-base: var(--offmesh-text-primary);
+  --ifm-heading-color: var(--offmesh-text-primary);
+  --ifm-navbar-background-color: #0C0D0E;
+  --ifm-footer-background-color: #08090A;
+  --ifm-footer-color: var(--offmesh-text-secondary);
+  --ifm-footer-link-color: var(--offmesh-text-primary);
+  --ifm-footer-title-color: var(--offmesh-text-primary);
+  --ifm-hr-border-color: var(--offmesh-border);
 }
 
+/* Global Navbar refinement */
 .navbar {
-  border-bottom: 1px solid #242F45;
+  border-bottom: 1px solid var(--offmesh-border);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
 }
 
+.navbar__brand {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.navbar__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.navbar__link {
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+/* Footer refinement */
 .footer {
-  border-top: 1px solid #242F45;
+  border-top: 1px solid var(--offmesh-border);
+  padding: 4rem 0 2.5rem;
+}
+
+.footer__title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.footer__link-item {
+  font-size: 0.9375rem;
+  line-height: 2;
+  color: var(--offmesh-text-secondary);
+  transition: color 0.15s ease;
+}
+
+.footer__link-item:hover {
+  color: var(--offmesh-text-primary);
+  text-decoration: none;
+}
+
+.footer__copyright {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--offmesh-border);
+  font-size: 0.85rem;
+  color: var(--offmesh-text-tertiary);
+}
+
+/* Buttons */
+.button--primary {
+  background-color: var(--offmesh-action-primary) !important;
+  color: var(--offmesh-action-on-primary) !important;
+  border: 1px solid var(--offmesh-action-primary) !important;
+  border-radius: var(--offmesh-radius-md) !important;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.button--primary:hover {
+  background-color: var(--offmesh-action-primary-hover) !important;
+  border-color: var(--offmesh-action-primary-hover) !important;
+  transform: translateY(-1px);
+}
+
+.button--secondary {
+  background-color: var(--offmesh-action-secondary) !important;
+  color: var(--offmesh-action-secondary-text) !important;
+  border: 1px solid var(--offmesh-border) !important;
+  border-radius: var(--offmesh-radius-md) !important;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.button--secondary:hover {
+  background-color: var(--offmesh-action-secondary-hover) !important;
+  border-color: var(--offmesh-border-strong) !important;
+  transform: translateY(-1px);
 }

@@ -23,3 +23,6 @@ apps/docs/.docusaurus/
 *.log
 __pycache__/
 *.pyc
+apps/docs/static/downloads/
+*.old
+apps/mobile/android/key.properties

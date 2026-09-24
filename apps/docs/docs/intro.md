@@ -3,9 +3,9 @@ sidebar_position: 1
 title: Overview & Philosophy
 ---
 
-# NearLink Documentation
+# OffMesh Documentation
 
-**NearLink** is a decentralized, offline smartphone-to-smartphone messaging platform and store-carry-forward delay-tolerant network (DTN) engineered for ordinary consumer devices.
+**OffMesh** is a decentralized, offline smartphone-to-smartphone messaging platform and store-carry-forward delay-tolerant network (DTN) engineered for ordinary consumer devices.
 
 ---
 
@@ -25,9 +25,9 @@ Modern communication infrastructure is fundamentally centralized, dependent on c
 
 ---
 
-## 2. The NearLink Solution
+## 2. The OffMesh Solution
 
-NearLink turns every passing smartphone into an opportunistic, zero-configuration relay packet carrier:
+OffMesh turns every passing smartphone into an opportunistic, zero-configuration relay packet carrier:
 
 ```mermaid
 graph LR
@@ -42,7 +42,7 @@ graph LR
     end
     
     subgraph Internet & Cloud
-        G -->|HTTPS / WSS| S[NearLink Modular Monolith Backend]
+        G -->|HTTPS / WSS| S[OffMesh Modular Monolith Backend]
         S -->|Push / Poll| B[Recipient User B]
     end
     

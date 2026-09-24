@@ -5,14 +5,14 @@ title: UI/UX & Design System
 
 # UI/UX & Design System
 
-NearLink uses an **Obsidian Dark** aesthetic tailored for high-contrast visibility in emergency environments, low power consumption on OLED screens, and visual clarity in high-stress transit or village scenarios.
+OffMesh uses a **Monochrome Minimal** aesthetic tailored for high-contrast visibility in emergency environments, low power consumption on OLED screens, and visual clarity in high-stress transit or village scenarios.
 
 ---
 
 ## 1. Design Tokens & Color Palette
 
 ```css
-/* NearLink Design Tokens */
+/* OffMesh Design Tokens */
 :root {
   --bg-primary: #0A0E17;       /* Deep Obsidian Space Background */
   --bg-surface: #121824;       /* Card and Container Surface */

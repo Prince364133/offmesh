@@ -1,0 +1,166 @@
+/**
+ * Compliance Pages Styles — Monochrome Minimal
+ * High-legibility legal and compliance document layout.
+ */
+
+.complianceContainer {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 6rem;
+  color: var(--offmesh-text-primary);
+}
+
+.complianceHeader {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--offmesh-border);
+}
+
+.complianceBadge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--offmesh-text-secondary);
+  background-color: var(--offmesh-surface-subtle);
+  border: 1px solid var(--offmesh-border);
+  padding: 4px 12px;
+  border-radius: var(--offmesh-radius-full);
+  margin-bottom: 1rem;
+}
+
+.complianceTitle {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.complianceMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 1.5rem;
+  background-color: var(--offmesh-surface-subtle);
+  border: 1px solid var(--offmesh-border);
+  border-radius: var(--offmesh-radius-md);
+  padding: 16px 20px;
+  font-size: 0.875rem;
+}
+
+.complianceMetaLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--offmesh-text-tertiary);
+  margin-bottom: 2px;
+}
+
+.complianceMetaValue {
+  font-weight: 600;
+  color: var(--offmesh-text-primary);
+}
+
+.complianceContent {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--offmesh-text-primary);
+}
+
+.complianceContent h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 2.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--offmesh-border);
+  color: var(--offmesh-text-primary);
+}
+
+.complianceContent h3 {
+  font-size: 1.1875rem;
+  font-weight: 600;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--offmesh-text-primary);
+}
+
+.complianceContent p {
+  margin-bottom: 1.25rem;
+  color: var(--offmesh-text-secondary);
+}
+
+.complianceContent ul, .complianceContent ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+  color: var(--offmesh-text-secondary);
+}
+
+.complianceContent li {
+  margin-bottom: 0.5rem;
+}
+
+.complianceContent strong {
+  color: var(--offmesh-text-primary);
+}
+
+/* Callout Box */
+.calloutBox {
+  background-color: var(--offmesh-surface-subtle);
+  border: 1px solid var(--offmesh-border);
+  border-left: 4px solid var(--offmesh-action-primary);
+  border-radius: var(--offmesh-radius-md);
+  padding: 20px;
+  margin: 1.75rem 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.calloutBox p:last-child {
+  margin-bottom: 0;
+}
+
+/* Compliance Table */
+.complianceTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.75rem 0;
+  font-size: 0.875rem;
+  border: 1px solid var(--offmesh-border);
+  border-radius: var(--offmesh-radius-md);
+  overflow: hidden;
+}
+
+.complianceTable th {
+  background-color: var(--offmesh-surface-subtle);
+  border-bottom: 1px solid var(--offmesh-border);
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--offmesh-text-primary);
+}
+
+.complianceTable td {
+  border-bottom: 1px solid var(--offmesh-border);
+  padding: 12px 16px;
+  color: var(--offmesh-text-secondary);
+  vertical-align: top;
+}
+
+.complianceTable tr:last-child td {
+  border-bottom: none;
+}
+
+.complianceFooterBox {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--offmesh-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}

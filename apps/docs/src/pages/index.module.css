@@ -1,23 +1,494 @@
 /**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
+ * OffMesh Landing Page Styles — Monochrome Minimal
+ * 4dp grid, 16px card radii, 12px button radii, calm neutral palette.
  */
 
-.heroBanner {
-  padding: 4rem 0;
+.landingPage {
+  background-color: var(--offmesh-bg);
+  color: var(--offmesh-text-primary);
+  min-height: 100vh;
+}
+
+/* Hero Section */
+.heroSection {
+  padding: 5rem 1.5rem 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
   text-align: center;
   position: relative;
-  overflow: hidden;
 }
 
-@media screen and (max-width: 996px) {
-  .heroBanner {
-    padding: 2rem;
-  }
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--offmesh-radius-full);
+  background-color: var(--offmesh-surface-subtle);
+  border: 1px solid var(--offmesh-border);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--offmesh-text-secondary);
+  margin-bottom: 1.5rem;
 }
 
-.buttons {
+.heroBadgeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--offmesh-status-success);
+  display: inline-block;
+}
+
+.heroLogoContainer {
+  margin: 0 auto 1.5rem;
+  width: 96px;
+  height: 96px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 24px;
+  background-color: var(--offmesh-surface-subtle);
+  border: 1px solid var(--offmesh-border);
+  padding: 16px;
+}
+
+.heroLogo {
+  width: 100%;
+  height: 100%;
+}
+
+.heroTitle {
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+  color: var(--offmesh-text-primary);
+}
+
+.heroSubtitle {
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  line-height: 1.6;
+  max-width: 780px;
+  margin: 0 auto 2.5rem;
+  color: var(--offmesh-text-secondary);
+  font-weight: 400;
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 3.5rem;
+}
+
+.primaryCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--offmesh-action-primary);
+  color: var(--offmesh-action-on-primary) !important;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 14px 28px;
+  border-radius: var(--offmesh-radius-md);
+  border: 1px solid var(--offmesh-action-primary);
+  text-decoration: none !important;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.primaryCta:hover {
+  background-color: var(--offmesh-action-primary-hover);
+  color: var(--offmesh-action-on-primary) !important;
+  transform: translateY(-1px);
+}
+
+.secondaryCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--offmesh-surface-subtle);
+  color: var(--offmesh-text-primary) !important;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 14px 24px;
+  border-radius: var(--offmesh-radius-md);
+  border: 1px solid var(--offmesh-border);
+  text-decoration: none !important;
+  transition: all 0.15s ease;
+}
+
+.secondaryCta:hover {
+  background-color: var(--offmesh-action-secondary-hover);
+  border-color: var(--offmesh-border-strong);
+  color: var(--offmesh-text-primary) !important;
+  transform: translateY(-1px);
+}
+
+/* Quick Metrics Bar */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  max-width: 1080px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.metricCard {
+  background-color: var(--offmesh-surface-subtle);
+  border: 1px solid var(--offmesh-border);
+  border-radius: var(--offmesh-radius-lg);
+  padding: 20px 24px;
+  transition: border-color 0.15s ease;
+}
+
+.metricCard:hover {
+  border-color: var(--offmesh-border-strong);
+}
+
+.metricVal {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--offmesh-text-primary);
+  margin-bottom: 4px;
+}
+
+.metricLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--offmesh-text-secondary);
+}
+
+/* Section Header */
+.sectionContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 5rem 1.5rem;
+}
+
+.sectionHeader {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 3.5rem;
+}
+
+.sectionBadge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--offmesh-text-secondary);
+  background-color: var(--offmesh-surface-subtle);
+  border: 1px solid var(--offmesh-border);
+  padding: 4px 12px;
+  border-radius: var(--offmesh-radius-full);
+  margin-bottom: 1rem;
+}
+
+.sectionTitle {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-bottom: 1rem;
+  color: var(--offmesh-text-primary);
+}
+
+.sectionSubtitle {
+  font-size: 1.0625rem;
+  color: var(--offmesh-text-secondary);
+  line-height: 1.6;
+}
+
+/* Honest Delivery State Section */
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.statusCard {
+  background-color: var(--offmesh-surface);
+  border: 1px solid var(--offmesh-border);
+  border-radius: var(--offmesh-radius-lg);
+  padding: 24px;
+  position: relative;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.statusCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--offmesh-border-strong);
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--offmesh-radius-full);
+  border: 1px solid transparent;
+}
+
+.statusPillQueued {
+  background-color: var(--offmesh-status-pending-bg);
+  border-color: var(--offmesh-status-pending-border);
+  color: var(--offmesh-status-pending);
+}
+
+.statusPillForwarded {
+  background-color: var(--offmesh-status-forwarded-bg);
+  border-color: var(--offmesh-status-forwarded-border);
+  color: var(--offmesh-status-forwarded);
+}
+
+.statusPillUploaded {
+  background-color: var(--offmesh-status-uploaded-bg);
+  border-color: var(--offmesh-status-uploaded-border);
+  color: var(--offmesh-status-uploaded);
+}
+
+.statusPillDelivered {
+  background-color: var(--offmesh-status-success-bg);
+  border-color: var(--offmesh-status-success-border);
+  color: var(--offmesh-status-success);
+}
+
+.statusStep {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--offmesh-text-tertiary);
+}
+
+.statusCardTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--offmesh-text-primary);
+}
+
+.statusCardMicrocopy {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.8125rem;
+  background-color: var(--offmesh-surface-subtle);
+  border: 1px solid var(--offmesh-border);
+  padding: 6px 10px;
+  border-radius: var(--offmesh-radius-sm);
+  color: var(--offmesh-text-primary);
+  margin-bottom: 12px;
+  display: inline-block;
+}
+
+.statusCardDesc {
+  font-size: 0.9375rem;
+  color: var(--offmesh-text-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Features Grid */
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.featureCard {
+  background-color: var(--offmesh-surface-subtle);
+  border: 1px solid var(--offmesh-border);
+  border-radius: var(--offmesh-radius-lg);
+  padding: 32px 28px;
+  transition: all 0.15s ease;
+}
+
+.featureCard:hover {
+  background-color: var(--offmesh-surface);
+  border-color: var(--offmesh-border-strong);
+  transform: translateY(-2px);
+}
+
+.featureIconBox {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--offmesh-radius-md);
+  background-color: var(--offmesh-surface);
+  border: 1px solid var(--offmesh-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-bottom: 20px;
+}
+
+.featureTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--offmesh-text-primary);
+}
+
+.featureDesc {
+  font-size: 0.9375rem;
+  color: var(--offmesh-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Release Download Box */
+.downloadBox {
+  background-color: var(--offmesh-surface);
+  border: 1px solid var(--offmesh-border);
+  border-radius: 20px;
+  padding: 40px;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (max-width: 860px) {
+  .downloadBox {
+    grid-template-columns: 1fr;
+    padding: 28px;
+  }
+}
+
+.downloadInfoTitle {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  color: var(--offmesh-text-primary);
+}
+
+.downloadInfoSub {
+  font-size: 1rem;
+  color: var(--offmesh-text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.buildMetaTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-bottom: 24px;
+}
+
+.buildMetaTable tr {
+  border-bottom: 1px solid var(--offmesh-border);
+}
+
+.buildMetaTable td {
+  padding: 10px 0;
+  color: var(--offmesh-text-secondary);
+}
+
+.buildMetaTable td:last-child {
+  text-align: right;
+  font-family: var(--ifm-font-family-monospace);
+  color: var(--offmesh-text-primary);
+  font-weight: 600;
+}
+
+.downloadButtons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.downloadActionsSide {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: var(--offmesh-surface-subtle);
+  border: 1px solid var(--offmesh-border);
+  border-radius: var(--offmesh-radius-lg);
+  padding: 24px;
+  text-align: center;
+}
+
+.storeBadgeBox {
+  padding: 14px;
+  background-color: var(--offmesh-surface);
+  border: 1px solid var(--offmesh-border);
+  border-radius: var(--offmesh-radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--offmesh-text-primary);
+}
+
+/* Compliance Navigation Banner */
+.complianceBanner {
+  background-color: var(--offmesh-surface-subtle);
+  border-top: 1px solid var(--offmesh-border);
+  border-bottom: 1px solid var(--offmesh-border);
+  padding: 3.5rem 1.5rem;
+}
+
+.complianceInner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.complianceCardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 2rem;
+}
+
+.complianceCard {
+  background-color: var(--offmesh-surface);
+  border: 1px solid var(--offmesh-border);
+  border-radius: var(--offmesh-radius-md);
+  padding: 20px;
+  text-decoration: none !important;
+  color: var(--offmesh-text-primary) !important;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.complianceCard:hover {
+  border-color: var(--offmesh-border-strong);
+  transform: translateY(-2px);
+}
+
+.complianceCardTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.complianceCardDesc {
+  font-size: 0.8125rem;
+  color: var(--offmesh-text-secondary);
+  line-height: 1.4;
+  margin: 0 0 12px;
+}
+
+.complianceCardLink {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--offmesh-text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
