@@ -53,12 +53,13 @@ class OffMeshEngine extends ChangeNotifier {
     final rnd = Random(42);
     final signPub = Uint8List.fromList(List.generate(32, (_) => rnd.nextInt(256)));
     final dhPub = Uint8List.fromList(List.generate(32, (_) => rnd.nextInt(256)));
-    final cardStr = NearLinkCrypto.formatCard('MobileUser', signPub, dhPub);
+    final userName = kIsWeb ? 'WebUser' : 'MobileUser';
+    final cardStr = NearLinkCrypto.formatCard(userName, signPub, dhPub);
     me = NearLinkCrypto.parseCard(cardStr);
   }
 
-  // Backend Gateway configuration
-  String backendUrl = 'http://10.0.2.2:3000'; // 10.0.2.2 points to host from Android emulator
+  // Backend Gateway configuration (10.0.2.2 for Android emulator, 127.0.0.1 for Web/Desktop)
+  String backendUrl = kIsWeb ? 'http://127.0.0.1:3000' : 'http://10.0.2.2:3000';
   bool isConnectedToBackend = false;
   String latestServerMerkleRoot = '0000000000000000000000000000000000000000000000000000000000000000';
   WebSocketChannel? _wsChannel;
@@ -80,11 +81,13 @@ class OffMeshEngine extends ChangeNotifier {
 
     notifyListeners();
 
-    // Start auto BLE scan if supported
-    try {
-      startBleScan();
-    } catch (e) {
-      debugPrint('BLE Scan not supported on this host: $e');
+    // Start auto BLE scan if supported (mobile only)
+    if (!kIsWeb) {
+      try {
+        startBleScan();
+      } catch (e) {
+        debugPrint('BLE Scan not supported on this host: $e');
+      }
     }
 
     // Try backend connection
@@ -145,7 +148,7 @@ class OffMeshEngine extends ChangeNotifier {
 
   // ---------------------------------------------------------------- BLE Radar
   Future<void> startBleScan() async {
-    if (isBleScanning) return;
+    if (kIsWeb || isBleScanning) return;
     try {
       isBleScanning = true;
       notifyListeners();
@@ -180,6 +183,7 @@ class OffMeshEngine extends ChangeNotifier {
   }
 
   Future<void> stopBleScan() async {
+    if (kIsWeb) return;
     await FlutterBluePlus.stopScan();
     await _scanSub?.cancel();
     isBleScanning = false;

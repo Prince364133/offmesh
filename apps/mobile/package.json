@@ -1,0 +1,16 @@
+{
+  "name": "offmesh-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OffMesh Flutter Mobile & Web Client - E2E Encrypted Delay-Tolerant Mesh App",
+  "scripts": {
+    "dev": "flutter run",
+    "dev:android": "flutter run -d android",
+    "dev:emulator": "flutter run -d emulator-5554",
+    "dev:web": "flutter run -d chrome --web-port 3002",
+    "dev:windows": "flutter run -d windows",
+    "build:apk": "flutter build apk --release",
+    "build:appbundle": "flutter build appbundle --release",
+    "build:web": "flutter build web --release"
+  }
+}

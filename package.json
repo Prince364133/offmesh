@@ -5,10 +5,11 @@
   "type": "module",
   "description": "OffMesh Monorepo - E2E Encrypted Opportunistic Mesh Mobile App, Modular Backend, and Documentation Platform",
   "scripts": {
-    "dev": "concurrently -p \"[{name}]\" -n \"BACKEND,DOCS,MOBILE\" -c \"cyan.bold,magenta.bold,green.bold\" \"pnpm --filter offmesh-backend dev\" \"pnpm --filter offmesh-docs start\" \"node scripts/run-mobile.js\"",
+    "dev": "concurrently -p \"[{name}]\" -n \"BACKEND,DOCS,MOBILE,WEB\" -c \"cyan.bold,magenta.bold,green.bold,yellow.bold\" \"pnpm --filter offmesh-backend dev\" \"pnpm --filter offmesh-docs start\" \"node scripts/run-mobile.js\" \"node scripts/run-web.js\"",
     "dev:backend": "pnpm --filter offmesh-backend dev",
     "dev:docs": "pnpm --filter offmesh-docs start",
     "dev:mobile": "node scripts/run-mobile.js",
+    "dev:web": "node scripts/run-web.js",
     "test": "pnpm --filter offmesh-backend test",
     "build": "pnpm --filter offmesh-backend build && pnpm --filter offmesh-docs build"
   },

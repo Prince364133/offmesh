@@ -113,6 +113,8 @@ importers:
         specifier: ~6.0.2
         version: 6.0.3
 
+  apps/mobile: {}
+
 packages:
 
   '@11ty/gray-matter@1.0.0':
