@@ -1,0 +1,18 @@
+{
+  "name": "offmesh-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OffMesh Monorepo - E2E Encrypted Opportunistic Mesh Mobile App, Modular Backend, and Documentation Platform",
+  "scripts": {
+    "dev": "concurrently -p \"[{name}]\" -n \"BACKEND,DOCS,MOBILE\" -c \"cyan.bold,magenta.bold,green.bold\" \"pnpm --filter offmesh-backend dev\" \"pnpm --filter offmesh-docs start\" \"node scripts/run-mobile.js\"",
+    "dev:backend": "pnpm --filter offmesh-backend dev",
+    "dev:docs": "pnpm --filter offmesh-docs start",
+    "dev:mobile": "node scripts/run-mobile.js",
+    "test": "pnpm --filter offmesh-backend test",
+    "build": "pnpm --filter offmesh-backend build && pnpm --filter offmesh-docs build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
