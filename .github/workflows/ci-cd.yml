@@ -230,7 +230,7 @@ jobs:
           version: 11.25.0
 
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile=false
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build Astro Landing Page & Compliance Suite
         run: pnpm --filter offmesh-landing build
