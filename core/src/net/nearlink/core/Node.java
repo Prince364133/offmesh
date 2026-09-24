@@ -102,6 +102,8 @@ public final class Node {
     public synchronized List<Incoming> inbox() { return new ArrayList<>(inbox); }
     public synchronized int heldCount() { return held.size(); }
     public synchronized int relayCount() { int n = 0; for (Held h : held.values()) if (h.role == Role.RELAY) n++; return n; }
+    public synchronized int receiptCount() { return receipts.size(); }
+    public synchronized List<Receipt> receipts() { return new ArrayList<>(receipts.values()); }
     public synchronized boolean holds(String msgId) { return held.containsKey(msgId); }
     public synchronized List<String> drainLog() { List<String> l = new ArrayList<>(log); log.clear(); return l; }
 

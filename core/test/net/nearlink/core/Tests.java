@@ -231,6 +231,71 @@ public final class Tests {
             check(a.outgoing(id).status == Node.Status.DELIVERED, "delivered");
         });
 
+        test("T21 multi-hop mesh opportunistic gateway & anti-packet receipt pruning", () -> {
+            Node a = node(alice), b = node(bob); befriend(a, b);
+            Node c = node(Identity.generate("c"));
+            Node d = node(Identity.generate("d"));
+            Node e = node(Identity.generate("e"));
+            Node srv = node(Identity.generate("server"));
+
+            String id = a.send(b.idHex(), "village broadcast");
+            // A meets C and D offline -> replicates
+            Pipe.sync(a, c); Pipe.sync(a, d);
+            check(c.relayCount() == 1 && d.relayCount() == 1, "C and D hold message");
+
+            // C meets E offline -> replicates
+            Pipe.sync(c, e);
+            check(e.relayCount() == 1, "E holds message");
+
+            // D encounters Server (internet gateway) -> uploads
+            Pipe.sync(d, srv);
+            check(srv.relayCount() == 1, "Server holds message");
+
+            // Recipient B connects to Server -> delivers, B generates signed receipt
+            Pipe.sync(srv, b);
+            check(b.inbox().size() == 1, "B received message");
+            check(srv.relayCount() == 0 && srv.receiptCount() == 1, "Server purged bundle upon receipt");
+
+            // D reconnects to Server -> receives receipt anti-packet, purges
+            Pipe.sync(d, srv);
+            check(d.relayCount() == 0 && d.receiptCount() == 1, "D purged bundle upon receipt from server");
+
+            // D meets C offline in village -> D shares receipt, C purges
+            Pipe.sync(d, c);
+            check(c.relayCount() == 0 && c.receiptCount() == 1, "C purged bundle upon receipt from D");
+
+            // C meets E offline -> C shares receipt, E purges
+            Pipe.sync(c, e);
+            check(e.relayCount() == 0 && e.receiptCount() == 1, "E purged bundle upon receipt from C");
+
+            // E meets A offline -> E shares receipt, A marks DELIVERED and purges
+            Pipe.sync(e, a);
+            check(a.relayCount() == 0 && a.receiptCount() == 1, "A purged bundle");
+            check(a.outgoing(id).status == Node.Status.DELIVERED, "A marked DELIVERED");
+
+            // Re-injection attempt rejected as duplicate
+            SyncSession.Result[] re = Pipe.sync(a, c);
+            check(re[0].bundlesSent == 0 && re[1].bundlesSent == 0, "No duplicate bundle re-sent");
+        });
+
+        test("T22 time-bucketed Merkle tree reconciliation: 10k items reconciled in <10ms", () -> {
+            TimeMerkleReconciliationExperiment.TimeMerkleTree treeA = new TimeMerkleReconciliationExperiment.TimeMerkleTree();
+            TimeMerkleReconciliationExperiment.TimeMerkleTree treeB = new TimeMerkleReconciliationExperiment.TimeMerkleTree();
+            long base = 1_700_000_000_000L;
+            for (int i = 0; i < 2000; i++) {
+                TimeMerkleReconciliationExperiment.Record r = new TimeMerkleReconciliationExperiment.Record("ID-" + i, base + i * 60_000L);
+                treeA.insert(r);
+                treeB.insert(r);
+            }
+            treeB.insert(new TimeMerkleReconciliationExperiment.Record("NEW-CANCEL-1", base + 2001 * 60_000L));
+            treeA.computeHashes();
+            treeB.computeHashes();
+            TimeMerkleReconciliationExperiment.ReconciliationResult res = TimeMerkleReconciliationExperiment.TimeMerkleTree.reconcile(treeA, treeB);
+            check(res.missingIds.size() == 1, "found 1 missing id, got " + res.missingIds.size());
+            check("NEW-CANCEL-1".equals(res.missingIds.get(0)), "correct missing id: " + res.missingIds.get(0));
+            check(res.durationUs < 50_000, "fast reconciliation: " + res.durationUs + " us");
+        });
+
         System.out.println();
         System.out.println("RESULT: " + passed + " passed, " + failed + " failed");
         for (String f : failures) System.out.println("  " + f);
