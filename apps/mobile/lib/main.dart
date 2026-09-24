@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
 import 'core/engine.dart';
 import 'ui/theme.dart';
-import 'ui/screens/radar_screen.dart';
 import 'ui/screens/chats_screen.dart';
-import 'ui/screens/contact_qr_screen.dart';
-import 'ui/screens/gateway_screen.dart';
+import 'ui/screens/people_screen.dart';
+import 'ui/screens/nearby_screen.dart';
+import 'ui/screens/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NearLinkEngine.instance.init();
-  runApp(const NearLinkApp());
+  runApp(const OffMeshApp());
 }
 
-class NearLinkApp extends StatelessWidget {
-  const NearLinkApp({super.key});
+class OffMeshApp extends StatelessWidget {
+  const OffMeshApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'NearLink',
+      title: 'OffMesh',
       debugShowCheckedModeBanner: false,
-      theme: NearLinkTheme.darkTheme,
+      theme: OffMeshTheme.lightTheme,
       home: const MainNavigationScreen(),
     );
   }
 }
+
+typedef NearLinkApp = OffMeshApp;
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -37,10 +39,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _tabs = const [
-    RadarScreen(),
     ChatsScreen(),
-    ContactQrScreen(),
-    GatewayScreen(),
+    PeopleScreen(),
+    NearbyScreen(),
+    SettingsScreen(),
   ];
 
   @override
@@ -50,27 +52,41 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         index: _currentIndex,
         children: _tabs,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.radar),
-            label: 'Radar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'Messages',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_2),
-            label: 'My Card',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.cloud_sync_outlined),
-            label: 'Gateway',
-          ),
-        ],
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: OffMeshTheme.border, width: 1)),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          backgroundColor: OffMeshTheme.surface,
+          selectedItemColor: OffMeshTheme.actionPrimary,
+          unselectedItemColor: OffMeshTheme.textTertiary,
+          type: BottomNavigationBarType.fixed,
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.chat_bubble_outline),
+              activeIcon: Icon(Icons.chat_bubble),
+              label: 'Chats',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.people_outline),
+              activeIcon: Icon(Icons.people),
+              label: 'People',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.radar_outlined),
+              activeIcon: Icon(Icons.radar),
+              label: 'Nearby',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings_outlined),
+              activeIcon: Icon(Icons.settings),
+              label: 'Settings',
+            ),
+          ],
+        ),
       ),
     );
   }

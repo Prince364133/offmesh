@@ -20,6 +20,34 @@ class NearLinkEngine extends ChangeNotifier {
   final List<MessageItem> messages = [];
   final Map<String, DiscoveredPeer> discoveredPeers = {};
 
+  Contact get myCard => me;
+  bool get isGatewayOnline => isConnectedToBackend;
+  String get serverUrl => backendUrl;
+
+  Future<void> syncWithGateway() => syncMerkleTreeWithBackend();
+
+  Contact? addContactFromCardString(String cardString) {
+    try {
+      final c = NearLinkCrypto.parseCard(cardString);
+      if (!contacts.any((existing) => existing.idHex == c.idHex)) {
+        contacts.add(c);
+        notifyListeners();
+      }
+      return c;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String formatSafetyCode(String code) => code;
+
+  String getSafetyCodeFor(Contact c) {
+    return NearLinkCrypto.safetyCode(
+      NearLinkCrypto.unhex(me.idHex),
+      NearLinkCrypto.unhex(c.idHex),
+    );
+  }
+
   NearLinkEngine._internal() {
     final rnd = Random(42);
     final signPub = Uint8List.fromList(List.generate(32, (_) => rnd.nextInt(256)));
