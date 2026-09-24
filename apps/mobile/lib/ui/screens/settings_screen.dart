@@ -216,12 +216,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               // About Section
               _sectionHeader('ABOUT OFFMESH'),
-              const ListTile(
-                leading: Icon(Icons.info_outline, color: OffMeshTheme.textPrimary),
-                title: Text('OffMesh Version 1.0', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                subtitle: Text(
-                  'Delay-tolerant peer-to-peer messaging system.\nBuilt with ChaCha20-Poly1305, Ed25519 & Time-Bucketed Merkle Sync.',
-                  style: TextStyle(fontSize: 12, color: OffMeshTheme.textSecondary, height: 1.3),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: OffMeshTheme.surface,
+                    borderRadius: BorderRadius.circular(OffMeshTheme.radiusCard),
+                    border: Border.all(color: OffMeshTheme.border),
+                  ),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.asset(
+                          'assets/icon-512.png',
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: 48,
+                            height: 48,
+                            color: OffMeshTheme.surfaceSubtle,
+                            child: const Icon(Icons.hub_outlined, color: OffMeshTheme.textPrimary),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'OffMesh',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.3,
+                                color: OffMeshTheme.textPrimary,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'STAY CONNECTED. ANYWHERE.',
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.2,
+                                color: OffMeshTheme.textTertiary,
+                              ),
+                            ),
+                            SizedBox(height: 6),
+                            Text(
+                              'v1.0.0 • E2EE Mesh Relay (ChaCha20 + Ed25519)',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: OffMeshTheme.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 24),

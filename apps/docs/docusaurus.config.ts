@@ -3,15 +3,15 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: 'NearLink Documentation',
-  tagline: 'Decentralized Offline Smartphone Messaging & Opportunistic Store-and-Forward Mesh',
+  title: 'OffMesh Documentation',
+  tagline: 'Stay Connected. Anywhere. — Decentralized Offline Smartphone Messaging & Opportunistic Store-and-Forward Mesh',
   favicon: 'img/favicon.ico',
 
-  url: 'https://nearlink.docs.local',
+  url: 'https://offmesh.docs.local',
   baseUrl: '/',
 
-  organizationName: 'nearlink',
-  projectName: 'nearlink-docs',
+  organizationName: 'offmesh',
+  projectName: 'offmesh-docs',
 
   onBrokenLinks: 'warn',
 
@@ -42,7 +42,11 @@ const config: Config = {
       respectPrefersColorScheme: false,
     },
     navbar: {
-      title: 'NearLink',
+      title: 'OffMesh',
+      logo: {
+        alt: 'OffMesh Logo',
+        src: 'img/logo.svg',
+      },
       items: [
         {
           type: 'docSidebar',
@@ -56,7 +60,7 @@ const config: Config = {
           position: 'left',
         },
         {
-          href: 'https://github.com',
+          href: 'https://github.com/Prince364133/offline-messaging',
           label: 'GitHub',
           position: 'right',
         },

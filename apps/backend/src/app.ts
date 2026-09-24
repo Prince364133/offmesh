@@ -26,8 +26,8 @@ export async function buildApp() {
   await app.register(fastifySwagger, {
     openapi: {
       info: {
-        title: 'NearLink Modular Monolith API',
-        description: 'Opportunistic Mesh Gateway, Anti-Packet Delivery Receipts & Time-Bucketed Merkle Sync Engine',
+        title: 'OffMesh Modular Monolith API',
+        description: 'OffMesh — Stay Connected. Anywhere. Opportunistic Mesh Gateway, Anti-Packet Delivery Receipts & Time-Bucketed Merkle Sync Engine',
         version: '1.0.0',
       },
       servers: [

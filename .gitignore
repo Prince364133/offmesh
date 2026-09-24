@@ -21,3 +21,5 @@ apps/docs/.docusaurus/
 .idea/
 .DS_Store
 *.log
+__pycache__/
+*.pyc
