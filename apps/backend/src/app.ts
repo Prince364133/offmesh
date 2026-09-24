@@ -2,6 +2,8 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import sensible from '@fastify/sensible';
 import websocket from '@fastify/websocket';
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUi from '@fastify/swagger-ui';
 import { identityRoutes } from './modules/identity/identity.routes.js';
 import { bundleRoutes } from './modules/bundles/bundle.routes.js';
 import { receiptRoutes } from './modules/receipts/receipt.routes.js';
@@ -19,6 +21,34 @@ export async function buildApp() {
   await app.register(cors, { origin: '*' });
   await app.register(sensible);
   await app.register(websocket);
+
+  // OpenAPI Swagger Documentation
+  await app.register(fastifySwagger, {
+    openapi: {
+      info: {
+        title: 'NearLink Modular Monolith API',
+        description: 'Opportunistic Mesh Gateway, Anti-Packet Delivery Receipts & Time-Bucketed Merkle Sync Engine',
+        version: '1.0.0',
+      },
+      servers: [
+        { url: 'http://localhost:3000', description: 'Local Gateway' },
+      ],
+      tags: [
+        { name: 'Identities', description: 'Ed25519 challenge-response auth and contact cards' },
+        { name: 'Bundles', description: 'Opportunistic mesh store-and-forward bundle routing' },
+        { name: 'Receipts', description: 'Cryptographic anti-packet delivery receipts and pruning' },
+        { name: 'Merkle', description: 'Microsecond time-bucketed Merkle tree reconciliation' },
+      ],
+    },
+  });
+
+  await app.register(fastifySwaggerUi, {
+    routePrefix: '/docs',
+    uiConfig: {
+      docExpansion: 'list',
+      deepLinking: false,
+    },
+  });
 
   // Health check
   app.get('/health', async () => {
