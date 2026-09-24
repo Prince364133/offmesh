@@ -1,0 +1,9 @@
+# OffMesh Android Release Signing Configuration Example
+# Generate your keystore with:
+# keytool -genkey -v -keystore upload-keystore.jks -storetype JKS -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+#
+# Then copy this file to 'key.properties' in this directory (apps/mobile/android/key.properties):
+storePassword=your_keystore_password
+keyPassword=your_key_password
+keyAlias=upload
+storeFile=upload-keystore.jks
