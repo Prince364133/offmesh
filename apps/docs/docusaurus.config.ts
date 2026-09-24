@@ -100,15 +100,19 @@ const config: Config = {
           ],
         },
         {
-          title: 'Developer Guides',
+          title: 'Validation & Roadmap',
           items: [
             {
-              label: 'Developer Onboarding',
-              to: '/docs/guides/developer-onboarding',
+              label: 'Automated Test Matrix (35/35)',
+              to: '/docs/empirical-validation/test-suite-matrix',
             },
             {
-              label: 'Automated Test Matrix (35/35)',
-              to: '/docs/validation/test-matrix',
+              label: 'Experiment Log (E-01–E-07)',
+              to: '/docs/empirical-validation/experiment-log',
+            },
+            {
+              label: 'Platform Status & Milestones',
+              to: '/docs/empirical-validation/status',
             },
           ],
         },
