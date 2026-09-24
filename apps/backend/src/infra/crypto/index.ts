@@ -12,7 +12,7 @@ export interface ParsedContactCard {
   rawCard: string;
 }
 
-export class NearLinkCrypto {
+export class OffMeshCrypto {
   /**
    * Computes SHA-256 hash of one or more buffers/strings.
    */
@@ -44,12 +44,12 @@ export class NearLinkCrypto {
   }
 
   /**
-   * Parses an NL1:... contact card matching Contact.java wire format:
+   * Parses an OM1:... or NL1:... contact card matching Contact wire format:
    * var16(name) || signPub (32) || dhPub (32)
    */
   public static parseCard(cardString: string): ParsedContactCard {
-    if (!cardString.startsWith('NL1:')) {
-      throw new Error('Invalid card prefix: must start with NL1:');
+    if (!cardString.startsWith('OM1:') && !cardString.startsWith('NL1:')) {
+      throw new Error('Invalid card prefix: must start with OM1: or NL1:');
     }
     const b64 = cardString.substring(4).replace(/-/g, '+').replace(/_/g, '/');
     const buf = Buffer.from(b64, 'base64');
@@ -67,8 +67,10 @@ export class NearLinkCrypto {
     const signPub = buf.subarray(offset, offset + 32); offset += 32;
     const dhPub = buf.subarray(offset, offset + 32); offset += 32;
 
-    // In NearLink, id = sha256("NL-id" || signPub || dhPub)
-    const id = this.sha256(Buffer.from('NL-id', 'utf8'), signPub, dhPub);
+    // Support both OM-id and legacy NL-id domains based on card prefix
+    const isOm = cardString.startsWith('OM1:');
+    const idDomain = isOm ? 'OM-id' : 'NL-id';
+    const id = this.sha256(Buffer.from(idDomain, 'utf8'), signPub, dhPub);
 
     return {
       version: 0,
@@ -97,3 +99,5 @@ export class NearLinkCrypto {
     return this.verifyEd25519(recipientKey, payload, sig);
   }
 }
+
+export const NearLinkCrypto = OffMeshCrypto;

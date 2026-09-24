@@ -24,14 +24,17 @@ export class BundleService {
    */
   public decodeWireBundle(rawBase64: string): DecodedBundle {
     const buf = Buffer.from(rawBase64, 'base64');
+    if (buf.length > 10 * 1024 * 1024) {
+      throw new Error('Bundle wire bytes exceed maximum allowed size (10MB)');
+    }
     if (buf.length < 4 + 1 + 16 + 32 + 32 + 8 + 2 + 2 + 2 + 32 + 2 + 64) {
       throw new Error('Bundle wire bytes too short');
     }
 
     let offset = 0;
     const magic = buf.subarray(offset, offset + 4).toString('utf8'); offset += 4;
-    if (magic !== 'NLB1') {
-      throw new Error(`Invalid bundle magic: ${magic}`);
+    if (magic !== 'OMB1' && magic !== 'NLB1') {
+      throw new Error(`Invalid bundle magic: ${magic} (expected OMB1 or NLB1)`);
     }
 
     const version = buf.readUInt8(offset); offset += 1;
@@ -89,6 +92,10 @@ export class BundleService {
       return { status: 'EXPIRED', msgIdHex: bundle.msgIdHex };
     }
 
+    if (bundle.hopLimit > 0 && bundle.hopCount >= bundle.hopLimit) {
+      return { status: 'EXPIRED', msgIdHex: bundle.msgIdHex };
+    }
+
     // Fast Redis check for seen bundles or existing receipts (cancellations)
     try {
       const isReceipt = await redis.sismember('receipts:seen', bundle.msgIdHex);
@@ -107,18 +114,22 @@ export class BundleService {
       return { status: 'DUPLICATE', msgIdHex: bundle.msgIdHex };
     }
 
-    // Persist to Postgres
-    await db.insert(schema.bundles).values({
-      id: bundle.msgIdHex,
-      senderId: bundle.senderIdHex,
-      recipientId: bundle.recipientIdHex,
-      payloadBase64: bundle.rawBase64,
-      status: 'QUEUED',
-      hopCount: bundle.hopCount,
-      copies: bundle.copies,
-      expiresAt: new Date(bundle.expiresAtMs),
-      createdAt: new Date(),
-    });
+    // Persist to Postgres idempotently
+    try {
+      await db.insert(schema.bundles).values({
+        id: bundle.msgIdHex,
+        senderId: bundle.senderIdHex,
+        recipientId: bundle.recipientIdHex,
+        payloadBase64: bundle.rawBase64,
+        status: 'QUEUED',
+        hopCount: bundle.hopCount,
+        copies: bundle.copies,
+        expiresAt: new Date(bundle.expiresAtMs),
+        createdAt: new Date(),
+      }).onConflictDoNothing();
+    } catch (e) {
+      return { status: 'DUPLICATE', msgIdHex: bundle.msgIdHex };
+    }
 
     // Mark as seen in Redis
     try {

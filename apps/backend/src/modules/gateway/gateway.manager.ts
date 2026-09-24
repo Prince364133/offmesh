@@ -8,8 +8,17 @@ export class GatewayManager {
     console.log(`[Gateway] Mobile peer connected: ${idHex.substring(0, 8)}`);
 
     ws.on('close', () => {
-      this.activeSockets.delete(idHex);
-      console.log(`[Gateway] Mobile peer disconnected: ${idHex.substring(0, 8)}`);
+      if (this.activeSockets.get(idHex) === ws) {
+        this.activeSockets.delete(idHex);
+        console.log(`[Gateway] Mobile peer disconnected: ${idHex.substring(0, 8)}`);
+      }
+    });
+
+    ws.on('error', (err) => {
+      console.warn(`[Gateway] Socket error for peer ${idHex.substring(0, 8)}: ${err.message}`);
+      if (this.activeSockets.get(idHex) === ws) {
+        this.activeSockets.delete(idHex);
+      }
     });
   }
 
@@ -21,8 +30,15 @@ export class GatewayManager {
   public sendToPeer(recipientIdHex: string, message: { type: string; data: any }): boolean {
     const ws = this.activeSockets.get(recipientIdHex);
     if (ws && ws.readyState === 1) {
-      ws.send(JSON.stringify(message));
-      return true;
+      try {
+        ws.send(JSON.stringify(message));
+        return true;
+      } catch (err) {
+        if (this.activeSockets.get(recipientIdHex) === ws) {
+          this.activeSockets.delete(recipientIdHex);
+        }
+        return false;
+      }
     }
     return false;
   }

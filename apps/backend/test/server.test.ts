@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildApp } from '../src/app.js';
-import { NearLinkCrypto } from '../src/infra/crypto/index.js';
+import { OffMeshCrypto, NearLinkCrypto } from '../src/infra/crypto/index.js';
 import { merkleTreeService } from '../src/modules/merkle/merkle.service.js';
 
-test('NearLink Backend Modular Monolith Test Suite', async (t) => {
+test('OffMesh Backend Modular Monolith Test Suite', async (t) => {
   const app = await buildApp();
 
   await t.test('1. Health check returns ok and valid Merkle root', async () => {
@@ -15,7 +15,7 @@ test('NearLink Backend Modular Monolith Test Suite', async (t) => {
     assert.equal(res.statusCode, 200);
     const body = JSON.parse(res.body);
     assert.equal(body.status, 'ok');
-    assert.equal(body.service, 'nearlink-modular-monolith');
+    assert.equal(body.service, 'offmesh-modular-monolith');
     assert.equal(typeof body.merkleRootHex, 'string');
     assert.equal(body.merkleRootHex.length, 64);
   });
@@ -154,6 +154,58 @@ test('NearLink Backend Modular Monolith Test Suite', async (t) => {
 
     const sent = gatewayManager.sendToPeer(peerId, { type: 'TEST', data: 'hello' });
     assert.equal(sent, true);
+  });
+
+  await t.test('9. Contact card parser supports OM1: and NL1: prefixes interchangeably', async () => {
+    const cardNL = 'NL1:ABNzZGtfZ3Bob25lNjRfeDg2XzY0DH8JpNhaH0QHWuVMbBLs1EJ_9klueS-pd32wQVuBAoPLV8B8CWOYxWWdZn6W2Jg1TKzKONZ0lNAsVg3OtQ05Qw';
+    const parsedNL = OffMeshCrypto.parseCard(cardNL);
+    assert.equal(parsedNL.name, 'sdk_gphone64_x86_64');
+    assert.equal(parsedNL.idHex.length, 64);
+
+    const cardOM = 'OM1:ABNzZGtfZ3Bob25lNjRfeDg2XzY0DH8JpNhaH0QHWuVMbBLs1EJ_9klueS-pd32wQVuBAoPLV8B8CWOYxWWdZn6W2Jg1TKzKONZ0lNAsVg3OtQ05Qw';
+    const parsedOM = OffMeshCrypto.parseCard(cardOM);
+    assert.equal(parsedOM.name, 'sdk_gphone64_x86_64');
+    assert.equal(parsedOM.idHex.length, 64);
+
+    // Invalid prefix rejected
+    assert.throws(() => OffMeshCrypto.parseCard('INVALID:12345'), /Invalid card prefix/);
+  });
+
+  await t.test('10. Bundle upload rejects malformed packets or invalid magic', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/bundles/upload',
+      payload: {
+        payloadBase64: Buffer.from('FAKE1_truncated_data_that_fails_validation_and_cannot_be_parsed_as_wire_bundle_protocol_header').toString('base64'),
+      },
+    });
+    assert.equal(res.statusCode, 400);
+  });
+
+  await t.test('11. Mailbox endpoint rejects invalid recipient ID parameters', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/v1/bundles/mailbox/invalid-short-id',
+    });
+    assert.equal(res.statusCode, 400);
+  });
+
+  await t.test('12. Gateway Manager safely handles broken socket pipes without throwing uncaught exceptions', async () => {
+    const { gatewayManager } = await import('../src/modules/gateway/gateway.manager.js');
+    const faultySocket: any = {
+      readyState: 1,
+      send: () => {
+        throw new Error('EPIPE: Broken pipe connection');
+      },
+      on: () => {},
+    };
+
+    const faultyPeerId = '0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff';
+    gatewayManager.registerClient(faultyPeerId, faultySocket);
+    // Should not throw, but safely catch and return false
+    const sent = gatewayManager.sendToPeer(faultyPeerId, { type: 'PING', data: {} });
+    assert.equal(sent, false);
+    assert.equal(gatewayManager.isOnline(faultyPeerId), false);
   });
 
   await app.close();

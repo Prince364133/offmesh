@@ -54,7 +54,7 @@ export async function buildApp() {
   app.get('/health', async () => {
     return {
       status: 'ok',
-      service: 'nearlink-modular-monolith',
+      service: 'offmesh-modular-monolith',
       onlinePeers: gatewayManager.getOnlineCount(),
       merkleRootHex: merkleTreeService.getRootHash(),
       timestamp: new Date().toISOString(),

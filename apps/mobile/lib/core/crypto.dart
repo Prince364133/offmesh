@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart' as crypto;
 import 'models.dart';
 
-class NearLinkCrypto {
+class OffMeshCrypto {
   /// Computes SHA-256 of concatenated byte lists
   static Uint8List sha256(List<List<int>> parts) {
     final output = <int>[];
@@ -146,3 +146,5 @@ class NearLinkCrypto {
     return hex(current.first);
   }
 }
+
+typedef NearLinkCrypto = OffMeshCrypto;

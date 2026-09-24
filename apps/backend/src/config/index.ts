@@ -7,7 +7,7 @@ const configSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(3000),
   HOST: z.string().default('0.0.0.0'),
-  DATABASE_URL: z.string().default('postgres://nearlink:nearlink_secret_password@localhost:5432/nearlink'),
+  DATABASE_URL: z.string().default('postgres://offmesh:offmesh_secret_password@localhost:5432/offmesh'),
   REDIS_URL: z.string().default('redis://localhost:6379'),
   MERKLE_BUCKET_MINUTES: z.coerce.number().default(5),
   MERKLE_SWEEP_INTERVAL_MINUTES: z.coerce.number().default(15),

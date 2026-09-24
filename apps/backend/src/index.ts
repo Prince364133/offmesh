@@ -13,9 +13,9 @@ async function main() {
 
   try {
     const address = await app.listen({ port: config.PORT, host: config.HOST });
-    console.log(`[NearLink Server] Modular Monolith running at ${address}`);
-    console.log(`[NearLink Server] Health endpoint: ${address}/health`);
-    console.log(`[NearLink Server] WebSocket gateway: ws://${config.HOST}:${config.PORT}/ws`);
+    console.log(`[OffMesh Server] Modular Monolith running at ${address}`);
+    console.log(`[OffMesh Server] Health endpoint: ${address}/health`);
+    console.log(`[OffMesh Server] WebSocket gateway: ws://${config.HOST}:${config.PORT}/ws`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);

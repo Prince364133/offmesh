@@ -1,11 +1,11 @@
 {
-    "name": "nearlink_mobile",
-    "short_name": "nearlink_mobile",
+    "name": "OffMesh",
+    "short_name": "OffMesh",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#111111",
+    "theme_color": "#111111",
+    "description": "OffMesh - Delay-Tolerant Peer-to-Peer Encrypted Mesh Messaging",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

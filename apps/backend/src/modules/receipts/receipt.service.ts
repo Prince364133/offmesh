@@ -25,8 +25,8 @@ export class ReceiptService {
 
     let offset = 0;
     const magic = buf.subarray(offset, offset + 4).toString('utf8'); offset += 4;
-    if (magic !== 'NLR1') {
-      throw new Error(`Invalid receipt magic: ${magic}`);
+    if (magic !== 'OMR1' && magic !== 'NLR1') {
+      throw new Error(`Invalid receipt magic: ${magic} (expected OMR1 or NLR1)`);
     }
 
     const version = buf.readUInt8(offset); offset += 1;

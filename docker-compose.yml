@@ -3,8 +3,9 @@ version: '3.8'
 services:
   backend:
     build:
-      context: .
+      context: ./apps/backend
       dockerfile: Dockerfile
+    image: ghcr.io/prince364133/offmesh-backend:latest
     container_name: offmesh-backend
     restart: unless-stopped
     ports:
@@ -15,6 +16,8 @@ services:
       - HOST=0.0.0.0
       - DATABASE_URL=postgres://offmesh:offmesh_secret_password@postgres:5432/offmesh
       - REDIS_URL=redis://redis:6379
+      - MERKLE_BUCKET_MINUTES=5
+      - MERKLE_SWEEP_INTERVAL_MINUTES=15
     depends_on:
       postgres:
         condition: service_healthy
@@ -25,7 +28,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-      start_period: 5s
+      start_period: 10s
+    networks:
+      - offmesh-network
 
   postgres:
     image: postgres:16-alpine
@@ -44,6 +49,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - offmesh-network
 
   redis:
     image: redis:7-alpine
@@ -58,6 +65,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - offmesh-network
+
+networks:
+  offmesh-network:
+    driver: bridge
 
 volumes:
   pgdata:

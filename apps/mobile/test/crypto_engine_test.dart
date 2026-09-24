@@ -1,22 +1,22 @@
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nearlink_mobile/core/crypto.dart';
-import 'package:nearlink_mobile/core/models.dart';
-import 'package:nearlink_mobile/core/engine.dart';
+import 'package:offmesh/core/crypto.dart';
+import 'package:offmesh/core/models.dart';
+import 'package:offmesh/core/engine.dart';
 
 void main() {
-  group('NearLink Mobile Cryptography & Wire Protocol', () {
+  group('OffMesh Mobile Cryptography & Wire Protocol', () {
     test('1. Contact card formatting and parsing roundtrip', () {
       final signPub = Uint8List.fromList(List.generate(32, (i) => i));
       final dhPub = Uint8List.fromList(List.generate(32, (i) => 255 - i));
-      final cardStr = NearLinkCrypto.formatCard('Alice', signPub, dhPub);
+      final cardStr = OffMeshCrypto.formatCard('Alice', signPub, dhPub);
 
-      expect(cardStr.startsWith('NL1:'), isTrue);
+      expect(cardStr.startsWith('NL1:') || cardStr.startsWith('OM1:'), isTrue);
 
-      final contact = NearLinkCrypto.parseCard(cardStr);
+      final contact = OffMeshCrypto.parseCard(cardStr);
       expect(contact.name, equals('Alice'));
-      expect(contact.signPubHex, equals(NearLinkCrypto.hex(signPub)));
-      expect(contact.encPubHex, equals(NearLinkCrypto.hex(dhPub)));
+      expect(contact.signPubHex, equals(OffMeshCrypto.hex(signPub)));
+      expect(contact.encPubHex, equals(OffMeshCrypto.hex(dhPub)));
       expect(contact.idHex.length, equals(64)); // 32-byte hex ID
     });
 
@@ -24,7 +24,7 @@ void main() {
       final idA = Uint8List(32);
       final idB = Uint8List.fromList(List.generate(32, (i) => i + 1));
 
-      final safetyCode = NearLinkCrypto.safetyCode(idA, idB);
+      final safetyCode = OffMeshCrypto.safetyCode(idA, idB);
       // Expected: "XXXXX XXXXX XXXXX XXXXX" (4 groups of 5 separated by spaces)
       expect(safetyCode.length, equals(23));
       final groups = safetyCode.split(' ');
@@ -35,10 +35,10 @@ void main() {
     });
 
     test('3. Engine message status tracking and honest progression', () {
-      final engine = NearLinkEngine.instance;
+      final engine = OffMeshEngine.instance;
       expect(engine.me.name, equals('MobileUser'));
 
-      final charlieCard = NearLinkCrypto.formatCard(
+      final charlieCard = OffMeshCrypto.formatCard(
         'Charlie',
         Uint8List(32),
         Uint8List(32),
@@ -66,12 +66,12 @@ void main() {
     });
 
     test('4. Merkle Root Calculation returns deterministic 32-byte hash', () {
-      final rootEmpty = NearLinkCrypto.computeMerkleRoot([]);
+      final rootEmpty = OffMeshCrypto.computeMerkleRoot([]);
       expect(rootEmpty.length, equals(64));
 
-      final leafA = NearLinkCrypto.hex(Uint8List(32));
-      final leafB = NearLinkCrypto.hex(Uint8List.fromList(List.generate(32, (i) => 0xff)));
-      final rootWithLeaves = NearLinkCrypto.computeMerkleRoot([leafA, leafB]);
+      final leafA = OffMeshCrypto.hex(Uint8List(32));
+      final leafB = OffMeshCrypto.hex(Uint8List.fromList(List.generate(32, (i) => 0xff)));
+      final rootWithLeaves = OffMeshCrypto.computeMerkleRoot([leafA, leafB]);
 
       expect(rootWithLeaves.length, equals(64));
       expect(rootWithLeaves, isNot(equals(rootEmpty)));

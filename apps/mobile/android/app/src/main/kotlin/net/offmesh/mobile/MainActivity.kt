@@ -1,4 +1,4 @@
-package net.nearlink.nearlink_mobile
+package net.offmesh.mobile
 
 import io.flutter.embedding.android.FlutterActivity
 

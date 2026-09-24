@@ -3,7 +3,9 @@ import { z } from 'zod';
 import { identityService } from './identity.service.js';
 
 const registerCardSchema = z.object({
-  card: z.string().startsWith('NL1:'),
+  card: z.string().refine((c) => c.startsWith('OM1:') || c.startsWith('NL1:'), {
+    message: "Contact card must start with 'OM1:' or 'NL1:'",
+  }),
 });
 
 const challengeSchema = z.object({

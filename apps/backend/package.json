@@ -1,7 +1,7 @@
 {
-  "name": "nearlink-server",
+  "name": "offmesh-backend",
   "version": "1.0.0",
-  "description": "NearLink Modular Monolith Backend - E2E Encrypted Opportunistic Mesh Gateway, Anti-Packet Reconciliation & Time-Merkle Sync",
+  "description": "OffMesh Modular Monolith Backend - E2E Encrypted Opportunistic Mesh Gateway, Anti-Packet Reconciliation & Time-Merkle Sync",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

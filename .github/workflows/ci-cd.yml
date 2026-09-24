@@ -1,0 +1,258 @@
+name: OffMesh CI/CD Pipeline
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  # ==============================================================================
+  # 1. Backend CI/CD: Test, Build Docker Image, Push to GHCR
+  # ==============================================================================
+  backend-ci-cd:
+    name: Backend Test, Docker Build & GHCR Push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: apps/backend/package-lock.json
+
+      - name: Install Backend Dependencies
+        working-directory: apps/backend
+        run: npm ci
+
+      - name: Run Backend Unit & Integration Tests (12 Specs)
+        working-directory: apps/backend
+        run: npm test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry (GHCR)
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Downcase Repository Name for Docker Tagging
+        id: repo_name
+        run: |
+          echo "IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/offmesh-backend" | tr '[:upper:]' '[:lower:]' >> $GITHUB_ENV
+
+      - name: Build and Push Backend Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/backend
+          file: ./apps/backend/Dockerfile
+          push: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Upload Environment Template Artifact for AWS Deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: offmesh-backend-env-template
+          path: |
+            .env.example
+            apps/backend/.env.example
+            docker-compose.yml
+          retention-days: 14
+
+  # ==============================================================================
+  # 2. Mobile Android CI/CD: Test, Build APK & Google Play AAB Bundle
+  # ==============================================================================
+  mobile-android-ci-cd:
+    name: Mobile Android Test, Build APK & AAB
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Verify Flutter Environment
+        run: flutter --version
+
+      - name: Install Mobile Dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+
+      - name: Run Mobile Flutter Tests
+        working-directory: apps/mobile
+        run: flutter test
+
+      - name: Build Android Release APK
+        working-directory: apps/mobile
+        run: flutter build apk --release
+
+      - name: Build Android App Bundle (AAB for Google Play Store)
+        working-directory: apps/mobile
+        run: flutter build appbundle --release
+
+      - name: Upload Android APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: offmesh-android-apk
+          path: apps/mobile/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Android AAB Bundle Artifact (Play Store)
+        uses: actions/upload-artifact@v4
+        with:
+          name: offmesh-android-aab
+          path: apps/mobile/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 30
+
+  # ==============================================================================
+  # 3. Mobile iOS CI: Build Validation (No Codesign)
+  # ==============================================================================
+  mobile-ios-ci:
+    name: Mobile iOS Build Validation
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Mobile Dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+
+      - name: Build iOS App (No Codesign)
+        working-directory: apps/mobile
+        run: flutter build ios --release --no-codesign
+
+      - name: Upload iOS Build Payload
+        uses: actions/upload-artifact@v4
+        with:
+          name: offmesh-ios-payload
+          path: apps/mobile/build/ios/iphoneos/
+          retention-days: 14
+
+  # ==============================================================================
+  # 4. Docs CI: Build Validation
+  # ==============================================================================
+  docs-ci:
+    name: Docs Platform Build Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: apps/docs/package-lock.json
+
+      - name: Install Docs Dependencies
+        working-directory: apps/docs
+        run: npm ci
+
+      - name: Build Docusaurus Static Site
+        working-directory: apps/docs
+        run: npm run build
+
+      - name: Upload Docs Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: offmesh-docs-build
+          path: apps/docs/build/
+          retention-days: 14
+
+  # ==============================================================================
+  # 5. AWS Deployment Preparation Manifest
+  # ==============================================================================
+  aws-deploy-prep:
+    name: Prepare AWS Deployment Manifests
+    needs: [backend-ci-cd, mobile-android-ci-cd]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Generate AWS ECS Task Definition & App Runner Config
+        run: |
+          mkdir -p deploy/aws
+          cat <<EOF > deploy/aws/ecs-task-definition.json
+          {
+            "family": "offmesh-backend-task",
+            "networkMode": "awsvpc",
+            "requiresCompatibilities": ["FARGATE"],
+            "cpu": "512",
+            "memory": "1024",
+            "containerDefinitions": [
+              {
+                "name": "offmesh-backend",
+                "image": "ghcr.io/${{ github.repository_owner }}/offmesh-backend:latest",
+                "essential": true,
+                "portMappings": [
+                  {
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp"
+                  }
+                ],
+                "environment": [
+                  { "name": "NODE_ENV", "value": "production" },
+                  { "name": "PORT", "value": "3000" },
+                  { "name": "HOST", "value": "0.0.0.0" }
+                ],
+                "healthCheck": {
+                  "command": ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/health || exit 1"],
+                  "interval": 30,
+                  "timeout": 5,
+                  "retries": 3,
+                  "startPeriod": 10
+                }
+              }
+            ]
+          }
+          EOF
+          echo "Generated AWS deployment manifests in deploy/aws/"
+
+      - name: Upload AWS Deployment Manifests
+        uses: actions/upload-artifact@v4
+        with:
+          name: offmesh-aws-deploy-manifests
+          path: deploy/aws/
+          retention-days: 14

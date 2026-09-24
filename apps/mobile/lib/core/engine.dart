@@ -8,11 +8,12 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'models.dart';
 import 'crypto.dart';
 
-class NearLinkEngine extends ChangeNotifier {
-  static final NearLinkEngine instance = NearLinkEngine._internal();
+class OffMeshEngine extends ChangeNotifier {
+  static final OffMeshEngine instance = OffMeshEngine._internal();
 
-  // Service UUID for NearLink BLE Mesh Rendezvous
-  static final Guid nearlinkBleUuid = Guid('00006e4c-0000-1000-8000-00805f9b34fb');
+  // Service UUID for OffMesh BLE Mesh Rendezvous
+  static final Guid offmeshBleUuid = Guid('00006e4c-0000-1000-8000-00805f9b34fb');
+  static Guid get nearlinkBleUuid => offmeshBleUuid;
 
   // Node identity
   late Contact me;
@@ -48,7 +49,7 @@ class NearLinkEngine extends ChangeNotifier {
     );
   }
 
-  NearLinkEngine._internal() {
+  OffMeshEngine._internal() {
     final rnd = Random(42);
     final signPub = Uint8List.fromList(List.generate(32, (_) => rnd.nextInt(256)));
     final dhPub = Uint8List.fromList(List.generate(32, (_) => rnd.nextInt(256)));
@@ -290,3 +291,5 @@ class NearLinkEngine extends ChangeNotifier {
     super.dispose();
   }
 }
+
+typedef NearLinkEngine = OffMeshEngine;

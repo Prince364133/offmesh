@@ -1,9 +1,9 @@
 import { Queue } from 'bullmq';
 import { redis } from '../redis/index.js';
 
-export const BUNDLE_QUEUE_NAME = 'nearlink-bundle-queue';
-export const MERKLE_QUEUE_NAME = 'nearlink-merkle-queue';
-export const TTL_QUEUE_NAME = 'nearlink-ttl-queue';
+export const BUNDLE_QUEUE_NAME = 'offmesh-bundle-queue';
+export const MERKLE_QUEUE_NAME = 'offmesh-merkle-queue';
+export const TTL_QUEUE_NAME = 'offmesh-ttl-queue';
 
 // BullMQ Queues
 export const bundleQueue = new Queue(BUNDLE_QUEUE_NAME, {
