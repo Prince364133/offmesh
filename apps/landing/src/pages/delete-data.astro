@@ -1,0 +1,269 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout 
+  title="Data & Account Deletion | OffMesh"
+  description="Google Play compliant Data Deletion policy and step-by-step cryptographic wipe instructions for OffMesh."
+  canonical="https://offmesh.pages.dev/delete-data"
+>
+  <div class="compliance-page">
+    <div class="container-narrow">
+      <div class="compliance-header">
+        <div class="badge">Google Play User Data Requirement</div>
+        <h1 class="display-title">Data & Account Deletion</h1>
+        <p class="last-updated">Last Updated: September 24, 2026 | Compliant with Play Store Data Safety</p>
+      </div>
+
+      <div class="compliance-body">
+        <div class="highlight-callout">
+          <h3>Self-Sovereign Identity Architecture</h3>
+          <p>
+            OffMesh does <strong>not</strong> require user registration, email addresses, phone numbers, or central cloud accounts. 
+            Your identity is represented entirely by a local <strong>Ed25519 cryptographic keypair</strong> generated directly on your mobile device.
+          </p>
+        </div>
+
+        <section class="policy-section">
+          <h2>1. How to Wipe All Data From Your Device</h2>
+          <p>You can instantly and irreversibly erase all local data directly from within the OffMesh mobile application:</p>
+
+          <div class="steps-list">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div class="step-text">
+                <strong>Open OffMesh Settings</strong>
+                <p>Launch the OffMesh application and tap the <strong>Settings</strong> icon (gear icon) in the bottom navigation bar.</p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div class="step-text">
+                <strong>Select "Data & Privacy"</strong>
+                <p>Navigate to the <em>Data & Privacy</em> section and select <strong>Wipe All Keys & Database</strong>.</p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-text">
+                <strong>Confirm Cryptographic Shredding</strong>
+                <p>Type <code>DELETE</code> or confirm the biometric prompt. The application immediately overwrites and deletes the local SQLite/Isar database, purges the private Ed25519 signing key and X25519 ratchet states from the hardware Keystore, and returns the app to a fresh, uninitialized state.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="policy-section">
+          <h2>2. What Data is Shredded Upon Local Wipe?</h2>
+          <div class="compliance-card">
+            <div class="card-row">
+              <span class="card-label">Private Cryptographic Keys (Ed25519 / X25519)</span>
+              <span class="card-status status-erased">Instantly Purged</span>
+            </div>
+            <div class="card-row">
+              <span class="card-label">Local Encrypted Message Database</span>
+              <span class="card-status status-erased">Shredded from Disk</span>
+            </div>
+            <div class="card-row">
+              <span class="card-label">Peer Identity Cache & Fingerprints</span>
+              <span class="card-status status-erased">Permanently Cleared</span>
+            </div>
+            <div class="card-row">
+              <span class="card-label">Queued Hop Relay Blobs</span>
+              <span class="card-status status-erased">Immediately Dropped</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="policy-section">
+          <h2>3. Transient Gateway Cache Expiration Policy</h2>
+          <p>
+            If your device ever synchronized with an optional OffMesh sync gateway while internet access was present, please note:
+          </p>
+          <ul>
+            <li>The gateway stores only anonymous, encrypted ciphertext envelopes. It holds no plaintext, usernames, or phone numbers.</li>
+            <li>All envelopes are bound to a strict <strong>7-Day Time-To-Live (TTL)</strong>. Once 7 days elapse from the upload timestamp, the Redis/Postgres storage automatically drops and purges the blob permanently.</li>
+          </ul>
+        </section>
+
+        <section class="policy-section">
+          <h2>4. Manual Gateway Purge Request</h2>
+          <p>
+            If you wish to request the immediate eviction of any uncollected encrypted envelopes associated with your public key hash prior to the 7-day TTL expiration:
+          </p>
+          <div class="contact-box">
+            <p>Send a cryptographic signature or request with your public identity fingerprint to:</p>
+            <p>Email: <a href="mailto:data-deletion@offmesh.org" class="text-link">data-deletion@offmesh.org</a></p>
+            <p>Subject: <em>OffMesh Gateway Cache Eviction Request</em></p>
+            <p style="margin-top: 8px; font-size: 0.85rem; color: var(--color-text-tertiary);">Requests are processed automatically by key fingerprint hash eviction within 24 hours.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .compliance-page {
+    padding: var(--space-12) 0 var(--space-20);
+  }
+
+  .compliance-header {
+    margin-bottom: var(--space-10);
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--space-8);
+  }
+
+  .last-updated {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-3);
+  }
+
+  .highlight-callout {
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    padding: var(--space-5) var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+
+  .highlight-callout h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .highlight-callout p {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+  }
+
+  .compliance-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .policy-section h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .policy-section p {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-3);
+  }
+
+  .policy-section ul {
+    margin: var(--space-3) 0 var(--space-4) var(--space-6);
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .policy-section li {
+    margin-bottom: var(--space-2);
+  }
+
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin: var(--space-4) 0;
+  }
+
+  .step-item {
+    display: flex;
+    gap: var(--space-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-action-primary);
+    color: var(--color-action-on-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .step-text strong {
+    font-size: 0.95rem;
+    color: var(--color-text-primary);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .step-text p {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0;
+  }
+
+  .compliance-card {
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-6);
+    margin: var(--space-4) 0;
+  }
+
+  .card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.9rem;
+  }
+
+  .card-row:last-child {
+    border-bottom: none;
+  }
+
+  .card-label {
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .card-status {
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .status-erased { background: #FEE4E2; color: var(--color-status-error); }
+
+  .text-link {
+    color: var(--color-text-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+  }
+
+  .contact-box {
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+    margin-top: var(--space-2);
+  }
+</style>

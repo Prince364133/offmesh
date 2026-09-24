@@ -1,0 +1,270 @@
+﻿---
+// OffMesh MeshRadar - Interactive Bluetooth & Wi-Fi Direct Peer Visualizer
+---
+<div class="mesh-radar-card">
+  <div class="radar-header">
+    <div class="radar-title-group">
+      <span class="radar-live-indicator"></span>
+      <span class="radar-title">OffMesh Discovery Radar</span>
+    </div>
+    <div class="radar-stats">
+      <span class="stat-item"><strong>4</strong> Active Peers</span>
+      <span class="stat-divider">•</span>
+      <span class="stat-item">BLE + Wi-Fi Direct</span>
+    </div>
+  </div>
+
+  <div class="radar-viewport">
+    <div class="radar-ring ring-3"></div>
+    <div class="radar-ring ring-2"></div>
+    <div class="radar-ring ring-1"></div>
+    <div class="radar-sweep"></div>
+
+    <!-- Center Node (You) -->
+    <div class="node node-center" title="Your Local Node (OffMesh-Client)">
+      <div class="node-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+        </svg>
+      </div>
+      <div class="node-label">You (Local)</div>
+    </div>
+
+    <!-- Peer 1 (BLE Relay) -->
+    <div class="node node-peer peer-1" title="Peer a4f1 - 1 Hop - Bluetooth LE">
+      <div class="node-dot"></div>
+      <div class="node-tag">Peer a4f1 <span>(1 hop • BLE)</span></div>
+    </div>
+
+    <!-- Peer 2 (Wi-Fi Direct) -->
+    <div class="node node-peer peer-2" title="Peer c890 - 1 Hop - Wi-Fi Direct">
+      <div class="node-dot"></div>
+      <div class="node-tag">Peer c890 <span>(1 hop • P2P)</span></div>
+    </div>
+
+    <!-- Peer 3 (2 Hops) -->
+    <div class="node node-peer peer-3" title="Peer e21b - 2 Hops Relay">
+      <div class="node-dot"></div>
+      <div class="node-tag">Peer e21b <span>(2 hops)</span></div>
+    </div>
+
+    <!-- Gateway Node -->
+    <div class="node node-gateway gateway-1" title="OffMesh Sync Gateway">
+      <div class="node-dot-gateway"></div>
+      <div class="node-tag">Gateway 01 <span>(Sync Gateway)</span></div>
+    </div>
+
+    <!-- Hop lines SVG -->
+    <svg class="radar-lines" viewBox="0 0 400 320">
+      <line x1="200" y1="160" x2="110" y2="80" stroke="#111111" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.4" />
+      <line x1="200" y1="160" x2="300" y2="90" stroke="#111111" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.4" />
+      <line x1="110" y1="80" x2="60" y2="210" stroke="#111111" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.25" />
+      <line x1="300" y1="90" x2="320" y2="240" stroke="#167A45" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.5" />
+    </svg>
+  </div>
+
+  <div class="radar-footer">
+    <div class="protocol-status">
+      <span class="status-code">DTN_ACTIVE</span>
+      <span class="status-detail">Opportunistic Store & Forward • 0 Internet Packets</span>
+    </div>
+    <div class="latency-status">Hop Latency: <strong>~120ms</strong></div>
+  </div>
+</div>
+
+<style>
+  .mesh-radar-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+
+  .radar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-6);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface-subtle);
+  }
+
+  .radar-title-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .radar-live-indicator {
+    width: 8px;
+    height: 8px;
+    background: var(--color-status-success);
+    border-radius: 50%;
+    animation: pulse 2s infinite ease-in-out;
+  }
+
+  .radar-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+
+  .radar-stats {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .stat-divider {
+    color: var(--color-border-strong);
+  }
+
+  .radar-viewport {
+    position: relative;
+    height: 320px;
+    background: #FAFAFB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .radar-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .ring-1 { width: 140px; height: 140px; }
+  .ring-2 { width: 240px; height: 240px; }
+  .ring-3 { width: 340px; height: 340px; border-style: dashed; }
+
+  .radar-sweep {
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, rgba(17, 17, 17, 0.06) 0deg, rgba(17, 17, 17, 0) 60deg);
+    animation: sweep 6s linear infinite;
+  }
+
+  @keyframes sweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .radar-lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: default;
+    z-index: 10;
+  }
+
+  .node-center {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .node-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-action-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .node-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-top: 4px;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  .node-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-text-primary);
+    border: 2px solid #FFFFFF;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+  }
+
+  .node-dot-gateway {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-status-success);
+    border: 2px solid #FFFFFF;
+    box-shadow: 0 0 0 2px rgba(22, 122, 69, 0.2);
+  }
+
+  .peer-1 { top: 22%; left: 24%; }
+  .peer-2 { top: 25%; left: 74%; }
+  .peer-3 { top: 64%; left: 14%; }
+  .gateway-1 { top: 72%; left: 78%; }
+
+  .node-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    background: #FFFFFF;
+    border: 1px solid var(--color-border);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+  }
+
+  .node-tag span {
+    color: var(--color-text-tertiary);
+    font-weight: 400;
+  }
+
+  .radar-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-6);
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    font-size: 0.75rem;
+  }
+
+  .status-code {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    background: var(--color-surface-subtle);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  .status-detail {
+    color: var(--color-text-secondary);
+  }
+
+  .latency-status {
+    color: var(--color-text-secondary);
+  }
+</style>

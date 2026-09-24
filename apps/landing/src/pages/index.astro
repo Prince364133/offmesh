@@ -1,0 +1,583 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MeshRadar from '../components/MeshRadar.astro';
+import DeliveryStatusDemo from '../components/DeliveryStatusDemo.astro';
+import InteractiveHopSimulator from '../components/InteractiveHopSimulator.astro';
+
+const faqList = [
+  {
+    question: "How does OffMesh send messages without internet or cellular connectivity?",
+    answer: "OffMesh uses the physical Bluetooth Low Energy (BLE) and Wi-Fi Direct radios already inside your smartphone to form an ad-hoc, decentralized mesh network. Devices within radio proximity (typically 30 to 100 meters) discover each other and exchange encrypted message packets directly. Using delay-tolerant store-and-forward routing, messages hop across intermediate peer phones until they reach the recipient, without ever touching a cellular tower or internet router."
+  },
+  {
+    question: "Can intermediate relay peers read or tamper with my private messages?",
+    answer: "No. OffMesh uses zero-knowledge end-to-end encryption combining the X25519 Double Ratchet protocol with ChaCha20-Poly1305 authenticated encryption. Intermediate relays only carry opaque cryptographic envelopes with blinded hop routing headers. Neither intermediate peers nor the OffMesh project can decrypt or alter your messages without being cryptographically rejected."
+  },
+  {
+    question: "Does OffMesh require or track my GPS location, phone number, or identity?",
+    answer: "OffMesh collects zero personal data, zero phone numbers, and zero email addresses. Your identity is an Ed25519 cryptographic keypair generated locally in your phone's hardware Keystore. On Android, Bluetooth discovery is registered with the neverForLocation flag, ensuring that location tracking is never performed or accessible."
+  },
+  {
+    question: "What happens if someone has internet access while others are offline?",
+    answer: "OffMesh supports opportunistic sync gateways. If any device in the mesh encounters an active internet connection, it can optionally upload encrypted ciphertext blobs to an ephemeral gateway cache (7-day TTL). When the recipient reconnects, their device retrieves and decrypts the message. If no internet is ever found, the mesh continues operating purely peer-to-peer."
+  },
+  {
+    question: "Where can I download OffMesh for Android and iOS?",
+    answer: "OffMesh is available as a signed Google Play Store App Bundle (.aab) and direct release APK downloads via GitHub Releases. Every release is built automatically and cryptographically signed through our reproducible CI/CD pipeline."
+  }
+];
+---
+
+<BaseLayout 
+  title="OffMesh | Decentralized Zero-Knowledge Offline Mesh Messaging"
+  description="Communicate without internet, cellular networks, or central servers. OffMesh provides peer-to-peer, delay-tolerant encrypted mesh communication for disasters, remote travel, and privacy."
+  keywords="offline messaging app, bluetooth mesh chat, peer to peer messaging, off-grid communication, disaster emergency messaging, decentralized p2p chat, zero knowledge encryption, offmesh"
+  faqList={faqList}
+>
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container hero-container">
+      <div class="hero-content">
+        <div class="badge-live hero-badge">
+          <span class="pulse-dot"></span>
+          <span>Zero-Knowledge Peer-to-Peer Mesh Protocol</span>
+        </div>
+
+        <h1 class="display-title hero-title">
+          Communicate Without Internet.
+        </h1>
+
+        <p class="body-text hero-desc">
+          OffMesh turns your smartphone into an autonomous, delay-tolerant mesh node. Exchange end-to-end encrypted messages across Bluetooth Low Energy and Wi-Fi Direct without cell towers, centralized servers, or cellular data plans.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#download" class="btn-primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download OffMesh
+          </a>
+
+          <a href="#how-it-works" class="btn-secondary">
+            Explore Architecture
+          </a>
+        </div>
+
+        <div class="hero-features-list">
+          <div class="hero-feat-item">
+            <span class="feat-check">✓</span>
+            <span>Zero Cell Signal Needed</span>
+          </div>
+          <div class="hero-feat-item">
+            <span class="feat-check">✓</span>
+            <span>Ed25519 & X25519 E2EE</span>
+          </div>
+          <div class="hero-feat-item">
+            <span class="feat-check">✓</span>
+            <span>Zero Telemetry or Logs</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <MeshRadar />
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Pillars Grid -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="caption-text">Protocol Principles</span>
+        <h2 class="screen-title">Built for Resilience When Infrastructure Fails</h2>
+        <p class="body-text max-w-600">
+          Engineered strictly under the Monochrome Minimal design specification and decentralized cryptographic principles.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="card feat-card">
+          <div class="feat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+              <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+              <line x1="12" y1="20" x2="12.01" y2="20"></line>
+            </svg>
+          </div>
+          <h3 class="section-title">Zero Infrastructure Required</h3>
+          <p class="body-text">
+            Physical radios form an ad-hoc local mesh. Phones automatically discover nearby peers over BLE and Wi-Fi Direct with zero internet, zero SIM card, and zero cloud reliance.
+          </p>
+        </div>
+
+        <div class="card feat-card">
+          <div class="feat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <h3 class="section-title">End-to-End Cryptography</h3>
+          <p class="body-text">
+            Double Ratchet protocol combining X25519 key agreements and ChaCha20-Poly1305 authenticated payload encryption. Intermediate relay peers cannot read or inspect plaintext.
+          </p>
+        </div>
+
+        <div class="card feat-card">
+          <div class="feat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="17 1 21 5 17 9"></polyline>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+              <polyline points="7 23 3 19 7 15"></polyline>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+            </svg>
+          </div>
+          <h3 class="section-title">Store & Forward Relaying</h3>
+          <p class="body-text">
+            Delay-Tolerant Networking (DTN) enables packets to hop from device to device. A message travels through moving participants until encountering the recipient.
+          </p>
+        </div>
+
+        <div class="card feat-card">
+          <div class="feat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <h3 class="section-title">Honest Delivery Feedback</h3>
+          <p class="body-text">
+            No false "sent" checkmarks. OffMesh transparently displays Queued, Forwarded, Gateway Uploaded, and cryptographically verified Delivered states.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Hop Simulator -->
+  <section class="section bg-subtle" id="how-it-works">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="caption-text">Interactive Demonstration</span>
+        <h2 class="screen-title">How OffMesh Packets Hop Off-Grid</h2>
+        <p class="body-text max-w-600">
+          Experience delay-tolerant store-and-forward peer relaying in real-time. Click to send an encrypted packet between offline devices.
+        </p>
+      </div>
+
+      <InteractiveHopSimulator />
+      <DeliveryStatusDemo />
+    </div>
+  </section>
+
+  <!-- Comparison Table -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="caption-text">Protocol Comparison</span>
+        <h2 class="screen-title">Why OffMesh Outperforms Conventional Messengers</h2>
+        <p class="body-text max-w-600">
+          Comparing operational capability during grid failures, natural disasters, and off-grid travel.
+        </p>
+      </div>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Feature Capability</th>
+              <th class="highlight-col">OffMesh</th>
+              <th>Traditional SMS</th>
+              <th>Internet Messengers (Signal/WhatsApp)</th>
+              <th>Proprietary LoRa Radios</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Works with Zero Internet</strong></td>
+              <td class="highlight-col val-yes">✓ Yes (BLE & Wi-Fi Direct)</td>
+              <td class="val-no">✗ Requires Cell Towers</td>
+              <td class="val-no">✗ Requires Internet</td>
+              <td class="val-yes">✓ Yes</td>
+            </tr>
+            <tr>
+              <td><strong>Standard Hardware (No Dongles)</strong></td>
+              <td class="highlight-col val-yes">✓ Standard Smartphone</td>
+              <td class="val-yes">✓ Standard Phone</td>
+              <td class="val-yes">✓ Standard Smartphone</td>
+              <td class="val-no">✗ Requires $100+ Hardware</td>
+            </tr>
+            <tr>
+              <td><strong>Zero-Knowledge End-to-End Encryption</strong></td>
+              <td class="highlight-col val-yes">✓ Yes (Double Ratchet)</td>
+              <td class="val-no">✗ Unencrypted Plaintext</td>
+              <td class="val-yes">✓ Yes</td>
+              <td class="val-part">Partial / Static Key</td>
+            </tr>
+            <tr>
+              <td><strong>No Phone Number Required</strong></td>
+              <td class="highlight-col val-yes">✓ Cryptographic Keys Only</td>
+              <td class="val-no">✗ Requires Telco SIM</td>
+              <td class="val-no">✗ Requires Phone Number</td>
+              <td class="val-yes">✓ Yes</td>
+            </tr>
+            <tr>
+              <td><strong>Multi-Hop Store & Forward</strong></td>
+              <td class="highlight-col val-yes">✓ Automatic Peer Hops</td>
+              <td class="val-no">✗ Central Gateway Only</td>
+              <td class="val-no">✗ Central Server Only</td>
+              <td class="val-part">Limited Packet Size</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download & CI/CD Release CTA -->
+  <section class="section download-section" id="download">
+    <div class="container download-container">
+      <div class="download-card">
+        <div class="badge">Production Ready • v1.0.0</div>
+        <h2 class="screen-title" style="margin-top: 16px;">Download OffMesh Today</h2>
+        <p class="body-text" style="max-width: 580px; margin: 12px auto 32px;">
+          Available now as a signed Android App Bundle (.aab) for Google Play Store deployment and direct APK release packages.
+        </p>
+
+        <div class="download-buttons">
+          <a href="https://github.com/Prince364133/offmesh/releases" target="_blank" rel="noopener noreferrer" class="btn-primary btn-lg">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3.609 1.814L13.793 12 3.61 22.186A2.43 2.43 0 0 1 3 20.457V3.543c0-.655.226-1.266.609-1.729zm1.414-1.414A2.438 2.438 0 0 1 6.752 0c.655 0 1.266.226 1.729.609l11.458 6.615L15.207 12 5.023.4zM15.207 12l4.732 4.776-11.458 6.615A2.438 2.438 0 0 1 6.752 24c-.655 0-1.266-.226-1.729-.609L15.207 12zm5.77-3.83l2.414 1.394a1.868 1.868 0 0 1 0 3.236l-2.414 1.394L16.621 12l4.356-4.83z"/>
+            </svg>
+            Google Play Store Release
+          </a>
+
+          <a href="https://github.com/Prince364133/offmesh/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-secondary btn-lg">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+              <line x1="12" y1="18" x2="12.01" y2="18"></line>
+            </svg>
+            Direct APK Download (.apk)
+          </a>
+        </div>
+
+        <div class="ci-pipeline-status">
+          <div class="ci-badge">
+            <span class="pulse-dot"></span>
+            <span>CI/CD Pipeline: <strong>Automated Builds on Push</strong></span>
+          </div>
+          <a href="https://github.com/Prince364133/offmesh/actions" target="_blank" rel="noopener noreferrer" class="ci-link">
+            View GitHub Actions Pipeline →
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section with Schema.org SEO -->
+  <section class="section" id="faq">
+    <div class="container container-narrow">
+      <div class="section-header text-center">
+        <span class="caption-text">Frequently Asked Questions</span>
+        <h2 class="screen-title">Everything You Need to Know</h2>
+        <p class="body-text">
+          Have questions about offline radios, cryptography, or compliance? Here are direct technical answers.
+        </p>
+      </div>
+
+      <div class="faq-list">
+        {faqList.map((item, index) => (
+          <details class="faq-item" open={index === 0}>
+            <summary class="faq-question">
+              <span>{item.question}</span>
+              <span class="faq-chevron">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </span>
+            </summary>
+            <div class="faq-answer">
+              <p>{item.answer}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Hero Section */
+  .hero-section {
+    padding: var(--space-16) 0 var(--space-12);
+    border-bottom: 1px solid var(--color-border);
+    background: radial-gradient(circle at 50% 0%, #FAFAFA 0%, #FFFFFF 70%);
+  }
+
+  .hero-container {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  .hero-badge {
+    margin-bottom: var(--space-4);
+  }
+
+  .hero-title {
+    margin-bottom: var(--space-4);
+  }
+
+  .hero-desc {
+    font-size: 1.1rem;
+    line-height: 1.65;
+    margin-bottom: var(--space-6);
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+    flex-wrap: wrap;
+  }
+
+  .hero-features-list {
+    display: flex;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+
+  .hero-feat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .feat-check {
+    color: var(--color-status-success);
+    font-weight: 700;
+  }
+
+  /* Section Styles */
+  .section {
+    padding: var(--space-20) 0;
+  }
+
+  .bg-subtle {
+    background-color: var(--color-surface-subtle);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .section-header {
+    margin-bottom: var(--space-12);
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .max-w-600 {
+    max-width: 600px;
+    margin: var(--space-3) auto 0;
+  }
+
+  /* Features Grid */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-6);
+  }
+
+  .feat-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .feat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-4);
+  }
+
+  .feat-card h3 {
+    margin-bottom: var(--space-2);
+  }
+
+  /* Comparison Table */
+  .comparison-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .comparison-table th {
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-surface-subtle);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .comparison-table td {
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+  }
+
+  .comparison-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .highlight-col {
+    background: #FAFAFA;
+    font-weight: 600;
+    color: var(--color-text-primary) !important;
+  }
+
+  .val-yes { color: var(--color-status-success); font-weight: 600; }
+  .val-no { color: var(--color-status-error); }
+  .val-part { color: var(--color-status-pending); }
+
+  /* Download Card */
+  .download-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-16) var(--space-8);
+    text-align: center;
+    box-shadow: var(--shadow-card);
+  }
+
+  .download-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-8);
+  }
+
+  .btn-lg {
+    padding: var(--space-4) var(--space-8);
+    font-size: 1.05rem;
+    border-radius: var(--radius-md);
+  }
+
+  .ci-pipeline-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border);
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.825rem;
+  }
+
+  .ci-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-text-primary);
+  }
+
+  .ci-link {
+    color: var(--color-text-secondary);
+    font-weight: 600;
+  }
+
+  .ci-link:hover {
+    color: var(--color-text-primary);
+  }
+
+  /* FAQ Accordion */
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .faq-item {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: border-color 0.15s ease;
+  }
+
+  .faq-item[open] {
+    border-color: var(--color-border-strong);
+  }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-5);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+
+  .faq-question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .faq-item[open] .faq-chevron {
+    transform: rotate(180deg);
+  }
+
+  .faq-answer {
+    padding: 0 var(--space-5) var(--space-4);
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+    line-height: 1.65;
+  }
+
+  @media (max-width: 960px) {
+    .hero-container {
+      grid-template-columns: 1fr;
+    }
+    .features-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,133 @@
+﻿---
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/theme.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  keywords?: string;
+  ogImage?: string;
+  canonical?: string;
+  faqList?: Array<{ question: string; answer: string }>;
+}
+
+const {
+  title = "OffMesh | Decentralized Offline Peer-to-Peer Messaging App",
+  description = "OffMesh is an open-source, zero-knowledge offline mesh messaging application. Communicate securely without internet, cell towers, or centralized servers via Bluetooth LE and Wi-Fi Direct.",
+  keywords = "offline messaging app, bluetooth mesh chat, peer to peer messaging, off-grid communication, disaster emergency messaging, decentralized p2p chat, zero knowledge encryption, offmesh",
+  ogImage = "/og-image.svg",
+  canonical,
+  faqList = []
+} = Astro.props;
+
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://offmesh.pages.dev';
+const canonicalURL = canonical || new URL(Astro.url.pathname, siteUrl).toString();
+const fullOgImage = new URL(ogImage, siteUrl).toString();
+
+// Schema.org SoftwareApplication JSON-LD
+const softwareAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "OffMesh",
+  "applicationCategory": "CommunicationApplication",
+  "operatingSystem": "Android 8.0+, iOS 14.0+, Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": description,
+  "downloadUrl": "https://github.com/Prince364133/offmesh/releases",
+  "softwareVersion": "1.0.0",
+  "fileSize": "32MB",
+  "author": {
+    "@type": "Organization",
+    "name": "OffMesh Project",
+    "url": siteUrl
+  },
+  "featureList": [
+    "Offline mesh networking via Bluetooth Low Energy and Wi-Fi Direct",
+    "End-to-end zero-knowledge encryption using Ed25519 & X25519 Double Ratchet",
+    "Store-and-forward delay-tolerant routing without cellular infrastructure",
+    "Honest delivery feedback states: Queued, Forwarded, Uploaded, and Delivered",
+    "Strict zero-telemetry, zero-log, privacy-first on-device cryptographic storage"
+  ]
+};
+
+// Schema.org WebSite JSON-LD
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "OffMesh",
+  "url": siteUrl,
+  "description": "Secure, peer-to-peer offline mesh communication platform."
+};
+
+// Optional FAQPage JSON-LD
+const faqSchema = faqList.length > 0 ? {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqList.map(item => ({
+    "@type": "Question",
+    "name": item.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": item.answer
+    }
+  }))
+} : null;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    <meta name="author" content="OffMesh Project" />
+    <link rel="canonical" href={canonicalURL} />
+    
+    <!-- Robots and Indexing -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="google-play-app" content="app-id=com.offmesh.app" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={fullOgImage} />
+    <meta property="og:site_name" content="OffMesh" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@OffMeshApp" />
+    <meta name="twitter:creator" content="@OffMeshApp" />
+    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={fullOgImage} />
+
+    <!-- Favicon & Touch Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#111111" />
+
+    <!-- Schema.org JSON-LD Structured Data for Senior SEO -->
+    <script type="application/ld+json" set:html={JSON.stringify(softwareAppSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+    {faqSchema && (
+      <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    )}
+  </head>
+  <body>
+    <Navbar />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

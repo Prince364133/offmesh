@@ -1,0 +1,164 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout 
+  title="Terms of Service | OffMesh"
+  description="Terms of Service for OffMesh decentralized peer-to-peer messaging application and protocol."
+  canonical="https://offmesh.pages.dev/terms"
+>
+  <div class="compliance-page">
+    <div class="container-narrow">
+      <div class="compliance-header">
+        <div class="badge">Legal Agreement</div>
+        <h1 class="display-title">Terms of Service</h1>
+        <p class="last-updated">Last Updated: September 24, 2026 | Version 1.0</p>
+      </div>
+
+      <div class="compliance-body">
+        <section class="policy-section">
+          <h2>1. Overview and Acceptance</h2>
+          <p>
+            Welcome to OffMesh ("OffMesh", "we", "us", or "our"). OffMesh is an open-source decentralized software project designed for peer-to-peer opportunistic mesh communication using Bluetooth Low Energy and local Wi-Fi Direct radios.
+          </p>
+          <p>
+            By downloading, installing, compiling, or utilizing the OffMesh application, protocol, or gateway services, you agree to be bound by these Terms of Service. If you do not agree to these Terms, do not install or use OffMesh.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>2. Decentralized Peer-to-Peer Operation</h2>
+          <p>
+            OffMesh operates as a distributed protocol executed locally on your device hardware:
+          </p>
+          <ul>
+            <li><strong>Autonomous Relay:</strong> When relay mode is enabled in your device settings, your device may store and forward encrypted ciphertext envelopes for nearby peers. You understand that your device acts as a decentralized node in a shared mesh.</li>
+            <li><strong>No Central Censorship or Inspection:</strong> Because all packets are end-to-end encrypted using modern cryptographic primitives (Ed25519 & X25519), neither relay peers nor the OffMesh project can inspect, modify, or censor packet contents.</li>
+          </ul>
+        </section>
+
+        <section class="policy-section">
+          <h2>3. Critical Emergency Services Disclaimer</h2>
+          <div class="warning-callout">
+            <strong>IMPORTANT NOTICE: NOT A REPLACEMENT FOR EMERGENCY SERVICES (911 / 112)</strong>
+            <p>
+              OffMesh is designed to assist in off-grid, disaster, and low-connectivity environments. However, wireless mesh networks depend on physical peer proximity, environmental radio propagation, device battery levels, and opportunistic relays. 
+              <strong>OffMesh does not guarantee message delivery and does NOT connect to municipal 911, 112, 999, or government emergency dispatchers.</strong> In a life-threatening emergency, always utilize certified satellite, radio, or cellular emergency services when accessible.
+            </p>
+          </div>
+        </section>
+
+        <section class="policy-section">
+          <h2>4. Acceptable Use and Community Safety</h2>
+          <p>
+            You agree to use OffMesh only for lawful purposes. You shall not use or configure the application to:
+          </p>
+          <ul>
+            <li>Transmit illicit, abusive, defamatory, or unlawful materials.</li>
+            <li>Conduct denial-of-service (DoS) radio jamming attacks or deliberately flood local peer buffers with malformed radio packets.</li>
+            <li>Attempt to bypass, compromise, or reverse-engineer the cryptographic guarantees of other network participants.</li>
+          </ul>
+        </section>
+
+        <section class="policy-section">
+          <h2>5. Open Source Licensing & Disclaimers</h2>
+          <p>
+            The OffMesh software is licensed under the Apache 2.0 / MIT open-source licenses.
+          </p>
+          <p>
+            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>6. Updates to Terms</h2>
+          <p>
+            We may update these terms to reflect protocol revisions, regulatory standards, or platform policies. Any changes will be published here with an updated effective date.
+          </p>
+          <p>
+            Questions regarding these Terms may be directed to <a href="mailto:legal@offmesh.org" class="text-link">legal@offmesh.org</a>.
+          </p>
+        </section>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .compliance-page {
+    padding: var(--space-12) 0 var(--space-20);
+  }
+
+  .compliance-header {
+    margin-bottom: var(--space-10);
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--space-8);
+  }
+
+  .last-updated {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-3);
+  }
+
+  .warning-callout {
+    background: #FFF7ED;
+    border: 1px solid #FED7AA;
+    border-radius: var(--radius-md);
+    padding: var(--space-5) var(--space-6);
+    margin: var(--space-4) 0;
+    color: #9A3412;
+  }
+
+  .warning-callout strong {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+
+  .warning-callout p {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 0;
+    color: #9A3412;
+  }
+
+  .compliance-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .policy-section h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .policy-section p {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-3);
+  }
+
+  .policy-section ul {
+    margin: var(--space-3) 0 var(--space-4) var(--space-6);
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .policy-section li {
+    margin-bottom: var(--space-2);
+  }
+
+  .text-link {
+    color: var(--color-text-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+  }
+</style>

@@ -1,0 +1,48 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#FFFFFF"/>
+  <rect x="40" y="40" width="1120" height="550" rx="24" fill="#FAFAFA" stroke="#E5E5E5" stroke-width="2"/>
+  
+  <!-- Grid pattern -->
+  <g opacity="0.08">
+    <path d="M40 150h1120M40 260h1120M40 370h1120M40 480h1120" stroke="#111111" stroke-width="1.5" stroke-dasharray="6 6"/>
+    <path d="M260 40v550M500 40v550M740 40v550M980 40v550" stroke="#111111" stroke-width="1.5" stroke-dasharray="6 6"/>
+  </g>
+
+  <!-- Brand Node Icon -->
+  <g transform="translate(100, 100)">
+    <rect width="80" height="80" rx="20" fill="#111111"/>
+    <circle cx="28" cy="40" r="8" fill="#FFFFFF"/>
+    <circle cx="56" cy="26" r="7" fill="#FFFFFF"/>
+    <circle cx="56" cy="54" r="7" fill="#FFFFFF"/>
+    <line x1="28" y1="40" x2="56" y2="26" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round"/>
+    <line x1="28" y1="40" x2="56" y2="54" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Typography -->
+  <text x="210" y="155" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="52" font-weight="800" fill="#111111" letter-spacing="-1">OffMesh</text>
+  <text x="430" y="152" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700" fill="#666666">v1.0 • E2EE Mesh</text>
+
+  <text x="100" y="270" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="56" font-weight="800" fill="#111111" letter-spacing="-1.5">Communicate Without Internet.</text>
+  <text x="100" y="340" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="32" font-weight="500" fill="#666666">Zero-Knowledge Opportunistic Mesh Messaging</text>
+
+  <!-- Badges row -->
+  <g transform="translate(100, 420)">
+    <rect width="210" height="48" rx="24" fill="#FFFFFF" stroke="#E5E5E5"/>
+    <text x="105" y="30" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="16" font-weight="700" fill="#111111" text-anchor="middle">Bluetooth Low Energy</text>
+  </g>
+  <g transform="translate(330, 420)">
+    <rect width="180" height="48" rx="24" fill="#FFFFFF" stroke="#E5E5E5"/>
+    <text x="90" y="30" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="16" font-weight="700" fill="#111111" text-anchor="middle">Wi-Fi Direct P2P</text>
+  </g>
+  <g transform="translate(530, 420)">
+    <rect width="220" height="48" rx="24" fill="#FFFFFF" stroke="#E5E5E5"/>
+    <text x="110" y="30" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="16" font-weight="700" fill="#111111" text-anchor="middle">Double Ratchet E2EE</text>
+  </g>
+  <g transform="translate(770, 420)">
+    <rect width="220" height="48" rx="24" fill="#FFFFFF" stroke="#E5E5E5"/>
+    <text x="110" y="30" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="16" font-weight="700" fill="#167A45" text-anchor="middle">Zero User Telemetry</text>
+  </g>
+
+  <!-- Bottom URL -->
+  <text x="100" y="535" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, monospace" font-size="20" font-weight="600" fill="#8A8A8A">offmesh.pages.dev • Open-Source Decoupled Communication</text>
+</svg>

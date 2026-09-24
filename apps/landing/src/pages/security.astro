@@ -1,0 +1,264 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout 
+  title="Security & Cryptographic Architecture | OffMesh"
+  description="Technical cryptographic audit, Double Ratchet specifications, and permission least-privilege architecture of OffMesh."
+  canonical="https://offmesh.pages.dev/security"
+>
+  <div class="compliance-page">
+    <div class="container-narrow">
+      <div class="compliance-header">
+        <div class="badge">Cryptographic Specifications</div>
+        <h1 class="display-title">Security & Cryptography</h1>
+        <p class="last-updated">Protocol Specification v1.0 • Ed25519 • X25519 • ChaCha20-Poly1305 • BLAKE3</p>
+      </div>
+
+      <div class="compliance-body">
+        <section class="policy-section">
+          <h2>1. Threat Model & Design Goals</h2>
+          <p>
+            OffMesh is architected under the zero-trust assumption that the radio communication medium (Bluetooth LE, Wi-Fi Direct, and ad-hoc networks) and intermediate relay devices may be passive observers, malicious nodes, or compromised radios.
+          </p>
+          <div class="security-grid">
+            <div class="sec-card">
+              <span class="sec-num">01</span>
+              <h4>End-to-End Secrecy</h4>
+              <p>Only the intended recipient possessing the corresponding private key can decrypt message payloads.</p>
+            </div>
+            <div class="sec-card">
+              <span class="sec-num">02</span>
+              <h4>Forward Secrecy</h4>
+              <p>Compromise of a long-term device key does not expose past encrypted communications.</p>
+            </div>
+            <div class="sec-card">
+              <span class="sec-num">03</span>
+              <h4>Relay Metadata Obfuscation</h4>
+              <p>Intermediate mesh relays only handle encrypted envelopes with blinded hop headers.</p>
+            </div>
+            <div class="sec-card">
+              <span class="sec-num">04</span>
+              <h4>Cryptographic Tamper-Resistance</h4>
+              <p>All envelopes are authenticated via BLAKE3 Merkle roots and digital signatures.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="policy-section">
+          <h2>2. Cryptographic Primitives</h2>
+          <div class="primitive-table-wrapper">
+            <table class="primitive-table">
+              <thead>
+                <tr>
+                  <th>Layer</th>
+                  <th>Algorithm</th>
+                  <th>Function & Implementation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Identity Keys</strong></td>
+                  <td><code>Ed25519</code></td>
+                  <td>Asymmetric digital signatures for peer authentication and delivery confirmation receipts.</td>
+                </tr>
+                <tr>
+                  <td><strong>Key Agreement</strong></td>
+                  <td><code>X25519</code></td>
+                  <td>Diffie-Hellman ephemeral key exchange establishing session keys per conversation.</td>
+                </tr>
+                <tr>
+                  <td><strong>Symmetric Encryption</strong></td>
+                  <td><code>ChaCha20-Poly1305</code></td>
+                  <td>Authenticated Encryption with Associated Data (AEAD) delivering 256-bit security with high performance on ARM mobile chipsets.</td>
+                </tr>
+                <tr>
+                  <td><strong>Merkle Tree Sync</strong></td>
+                  <td><code>BLAKE3</code></td>
+                  <td>Ultra-fast cryptographic hashing for 5-minute time bucket reconciliation without leaking individual message IDs.</td>
+                </tr>
+                <tr>
+                  <td><strong>Local Key Storage</strong></td>
+                  <td><code>Android Keystore / Secure Enclave</code></td>
+                  <td>Hardware-backed key encryption preventing memory dumps and physical extraction.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="policy-section" id="permissions">
+          <h2>3. Operating System Permission Audit (Least-Privilege)</h2>
+          <p>
+            OffMesh does not request location access, contact book access, phone state, microphone, or external storage:
+          </p>
+          <ul>
+            <li><strong>Bluetooth Low Energy:</strong> Uses <code>android.permission.BLUETOOTH_SCAN</code> with <code>android:usesPermissionFlags="neverForLocation"</code> so Google Play certifies that no location data is derived or shared.</li>
+            <li><strong>Wi-Fi Direct:</strong> Uses <code>android.permission.NEARBY_WIFI_DEVICES</code> for device-to-device transport without location access.</li>
+            <li><strong>Background Execution:</strong> Standard foreground service with an un-intrusive notification allows the mesh engine to relay delay-tolerant packets when you opt-in.</li>
+          </ul>
+        </section>
+
+        <section class="policy-section">
+          <h2>4. Responsible Vulnerability Disclosure</h2>
+          <p>
+            We welcome independent cryptographic scrutiny. If you discover a vulnerability or cryptographic weakness, please report it via our responsible disclosure channel:
+          </p>
+          <div class="contact-box">
+            <p><strong>OffMesh Security Advisory</strong></p>
+            <p>Email: <a href="mailto:security@offmesh.org" class="text-link">security@offmesh.org</a></p>
+            <p>PGP Key Fingerprint: <code>E4F2 981A 3B2C 7D10 99AF 8C4E 1120 54BB 8890 A0C1</code></p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .compliance-page {
+    padding: var(--space-12) 0 var(--space-20);
+  }
+
+  .compliance-header {
+    margin-bottom: var(--space-10);
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--space-8);
+  }
+
+  .last-updated {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-3);
+  }
+
+  .compliance-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .policy-section h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .policy-section p {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-3);
+  }
+
+  .policy-section ul {
+    margin: var(--space-3) 0 var(--space-4) var(--space-6);
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .policy-section li {
+    margin-bottom: var(--space-2);
+  }
+
+  .security-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin: var(--space-4) 0;
+  }
+
+  .sec-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+  }
+
+  .sec-num {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-tertiary);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .sec-card h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 6px;
+  }
+
+  .sec-card p {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    margin-bottom: 0;
+  }
+
+  .primitive-table-wrapper {
+    overflow-x: auto;
+    margin: var(--space-4) 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .primitive-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    text-align: left;
+  }
+
+  .primitive-table th {
+    background: var(--color-surface-subtle);
+    padding: var(--space-3) var(--space-4);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .primitive-table td {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    vertical-align: top;
+  }
+
+  .primitive-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .primitive-table code {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    background: var(--color-surface-subtle);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--color-text-primary);
+  }
+
+  .text-link {
+    color: var(--color-text-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+  }
+
+  .contact-box {
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+    margin-top: var(--space-2);
+  }
+
+  @media (max-width: 600px) {
+    .security-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

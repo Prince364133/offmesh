@@ -210,11 +210,53 @@ jobs:
           retention-days: 14
 
   # ==============================================================================
-  # 5. AWS Deployment Preparation Manifest
+  # 5. Landing Page CI/CD: Build Astro Site & Deploy to Cloudflare Pages
+  # ==============================================================================
+  landing-cloudflare-ci-cd:
+    name: Landing Page Build & Cloudflare Pages Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Build Astro Landing Page & Compliance Suite
+        run: pnpm --filter offmesh-landing build
+
+      - name: Upload Landing Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: offmesh-landing-build
+          path: apps/landing/dist/
+          retention-days: 14
+
+      - name: Deploy to Cloudflare Pages
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy apps/landing/dist --project-name=offmesh --branch=main
+        continue-on-error: true
+
+  # ==============================================================================
+  # 6. AWS Deployment Preparation Manifest
   # ==============================================================================
   aws-deploy-prep:
     name: Prepare AWS Deployment Manifests
-    needs: [backend-ci-cd, mobile-android-ci-cd]
+    needs: [backend-ci-cd, mobile-android-ci-cd, landing-cloudflare-ci-cd]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

@@ -1,0 +1,289 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout 
+  title="Privacy Policy | OffMesh - Zero-Knowledge Offline Messaging"
+  description="OffMesh official Privacy Policy. Built strictly in compliance with Google Play Developer Policy. Zero telemetry, zero personal tracking, local cryptographic storage."
+  canonical="https://offmesh.pages.dev/privacy"
+>
+  <div class="compliance-page">
+    <div class="container-narrow">
+      <div class="compliance-header">
+        <div class="badge">Google Play Developer Policy Compliant</div>
+        <h1 class="display-title">Privacy Policy</h1>
+        <p class="last-updated">Effective Date: September 24, 2026 | Version 1.0</p>
+      </div>
+
+      <div class="compliance-body">
+        <section class="policy-section">
+          <h2>1. Commitment to Absolute Privacy</h2>
+          <p>
+            OffMesh is developed with a strict <strong>Privacy by Default</strong> architecture. OffMesh operates as an opportunistic, decentralized mesh communication utility. 
+            We do <strong>not</strong> collect, track, sell, or monetize any personal information, behavioral metrics, or user telemetry.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>2. Data Collection and Processing</h2>
+          <div class="compliance-card">
+            <div class="card-row">
+              <span class="card-label">Personal Identifiable Information (PII)</span>
+              <span class="card-status status-zero">Zero Collected</span>
+            </div>
+            <div class="card-row">
+              <span class="card-label">Phone Numbers & Email Addresses</span>
+              <span class="card-status status-zero">Not Required / Never Requested</span>
+            </div>
+            <div class="card-row">
+              <span class="card-label">Advertising IDs & Trackers</span>
+              <span class="card-status status-zero">Zero SDKs / Zero Tracking</span>
+            </div>
+            <div class="card-row">
+              <span class="card-label">Message Contents</span>
+              <span class="card-status status-encrypted">End-to-End Encrypted (Unreadable)</span>
+            </div>
+            <div class="card-row">
+              <span class="card-label">Cryptographic Keys</span>
+              <span class="card-status status-local">Stored Exclusively On-Device</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="policy-section">
+          <h2>3. Operating System Permissions & Rationale</h2>
+          <p>
+            In accordance with Google Play's <em>Permissions and APIs that Access Sensitive Information</em> policies, OffMesh requests only the minimal permissions required to provide offline peer-to-peer radio communication:
+          </p>
+
+          <div class="perm-table-wrapper">
+            <table class="perm-table">
+              <thead>
+                <tr>
+                  <th>Permission</th>
+                  <th>API Level</th>
+                  <th>Purpose & Compliance Guardrail</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>BLUETOOTH_SCAN</code></td>
+                  <td>Android 12+ (API 31+)</td>
+                  <td>Used strictly to discover nearby OffMesh peer nodes. Configured with <code>neverForLocation</code> flag. We never infer or record geographic location.</td>
+                </tr>
+                <tr>
+                  <td><code>BLUETOOTH_CONNECT</code></td>
+                  <td>Android 12+ (API 31+)</td>
+                  <td>Used to establish direct peer RFCOMM/L2CAP channels to exchange encrypted message envelopes.</td>
+                </tr>
+                <tr>
+                  <td><code>BLUETOOTH_ADVERTISE</code></td>
+                  <td>Android 12+ (API 31+)</td>
+                  <td>Broadcasts an ephemeral peer beacon containing only your random node identifier hash.</td>
+                </tr>
+                <tr>
+                  <td><code>NEARBY_WIFI_DEVICES</code></td>
+                  <td>Android 13+ (API 33+)</td>
+                  <td>Used for high-speed Wi-Fi Direct peer-to-peer data links without internet connectivity.</td>
+                </tr>
+                <tr>
+                  <td><code>CAMERA</code></td>
+                  <td>Optional</td>
+                  <td>Requested solely when the user chooses to scan an in-person contact's public QR code to verify identity fingerprints. Images never leave local memory.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="policy-section">
+          <h2>4. End-to-End Cryptography and Store-and-Forward Relaying</h2>
+          <p>
+            All messages created in OffMesh are encrypted on the sender's device using ChaCha20-Poly1305 with keys derived from the X25519 Double Ratchet protocol.
+          </p>
+          <ul>
+            <li><strong>Relay Privacy:</strong> When intermediate devices forward encrypted envelopes, they have zero access to the plaintext content, recipient metadata, or sender identity.</li>
+            <li><strong>Zero Central Decryption:</strong> There are no master keys or backdoors. Only the recipient with the corresponding private key can decrypt the message.</li>
+          </ul>
+        </section>
+
+        <section class="policy-section">
+          <h2>5. Server Synchronization and Ephemeral Cache Retention</h2>
+          <p>
+            If a device connects to an optional OffMesh sync gateway when internet access is present:
+          </p>
+          <ul>
+            <li>The gateway only stores encrypted ciphertext blobs.</li>
+            <li><strong>Retention Period:</strong> Blobs are subject to a strict <strong>7-day Time-To-Live (TTL)</strong> cache, after which they are automatically permanently purged.</li>
+            <li>The server maintains zero user accounts, zero device identifiers, and zero persistent relational logs.</li>
+          </ul>
+        </section>
+
+        <section class="policy-section">
+          <h2>6. Data Deletion and Self-Service Wipe</h2>
+          <p>
+            You maintain 100% ownership and control over your data. Because OffMesh does not store personal data on central servers, wiping your local data completely erases your cryptographic presence.
+          </p>
+          <p>
+            To initiate an instant full data shred, open OffMesh -> <strong>Settings -> Data & Storage -> Wipe All Identity Keys & Local Data</strong>. For full instructions, visit our <a href="/delete-data" class="text-link">Data Deletion Policy</a>.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>7. Contact and Inquiries</h2>
+          <p>
+            For compliance, privacy inquiries, or security verification:
+          </p>
+          <div class="contact-box">
+            <p><strong>OffMesh Compliance Team</strong></p>
+            <p>Email: <a href="mailto:privacy@offmesh.org" class="text-link">privacy@offmesh.org</a></p>
+            <p>GitHub Security Advisory: <a href="https://github.com/Prince364133/offmesh/security" target="_blank" rel="noopener noreferrer" class="text-link">github.com/Prince364133/offmesh/security</a></p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .compliance-page {
+    padding: var(--space-12) 0 var(--space-20);
+  }
+
+  .compliance-header {
+    margin-bottom: var(--space-10);
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--space-8);
+  }
+
+  .last-updated {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-3);
+  }
+
+  .compliance-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .policy-section h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .policy-section p {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-3);
+  }
+
+  .policy-section ul {
+    margin: var(--space-3) 0 var(--space-4) var(--space-6);
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .policy-section li {
+    margin-bottom: var(--space-2);
+  }
+
+  .compliance-card {
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-6);
+    margin: var(--space-4) 0;
+  }
+
+  .card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.9rem;
+  }
+
+  .card-row:last-child {
+    border-bottom: none;
+  }
+
+  .card-label {
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .card-status {
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .status-zero { background: #EBF7EE; color: var(--color-status-success); }
+  .status-encrypted { background: #EEF4FD; color: var(--color-status-info); }
+  .status-local { background: #F4F4F5; color: var(--color-text-primary); }
+
+  .perm-table-wrapper {
+    overflow-x: auto;
+    margin: var(--space-4) 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .perm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    text-align: left;
+  }
+
+  .perm-table th {
+    background: var(--color-surface-subtle);
+    padding: var(--space-3) var(--space-4);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .perm-table td {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    vertical-align: top;
+  }
+
+  .perm-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .perm-table code {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    background: var(--color-surface-subtle);
+    padding: 2px 5px;
+    border-radius: 4px;
+    color: var(--color-text-primary);
+  }
+
+  .text-link {
+    color: var(--color-text-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+  }
+
+  .contact-box {
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+    margin-top: var(--space-2);
+  }
+</style>

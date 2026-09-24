@@ -1,0 +1,201 @@
+﻿---
+// OffMesh Footer Component with strict Google Play compliance disclosures
+---
+<footer class="footer">
+  <div class="container footer-content">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg width="22" height="22" viewBox="0 0 48 48" fill="none">
+              <circle cx="16" cy="24" r="5" fill="#FFFFFF"/>
+              <circle cx="34" cy="15" r="4.5" fill="#FFFFFF"/>
+              <circle cx="34" cy="33" r="4.5" fill="#FFFFFF"/>
+              <line x1="16" y1="24" x2="34" y2="15" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+              <line x1="16" y1="24" x2="34" y2="33" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="brand-name">OffMesh</span>
+        </div>
+        <p class="footer-desc">
+          Resilient, zero-knowledge opportunistic mesh messaging for offline communications, disaster response, and privacy-first peer exchange. No cell towers, no central authority, no telemetry.
+        </p>
+        <div class="playstore-compliance-pill">
+          <span>✓ Google Play Policy Compliant</span>
+          <span>•</span>
+          <span>Zero User Tracking</span>
+          <span>•</span>
+          <span>Local Cryptographic Storage</span>
+        </div>
+      </div>
+
+      <div class="footer-column">
+        <div class="footer-heading">Protocol & App</div>
+        <a href="/#features" class="footer-link">Features</a>
+        <a href="/#how-it-works" class="footer-link">How It Works</a>
+        <a href="/security" class="footer-link">Security Whitepaper</a>
+        <a href="https://github.com/Prince364133/offmesh" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub Monorepo</a>
+      </div>
+
+      <div class="footer-column">
+        <div class="footer-heading">Google Play Compliance</div>
+        <a href="/privacy" class="footer-link">Privacy Policy</a>
+        <a href="/terms" class="footer-link">Terms of Service</a>
+        <a href="/delete-data" class="footer-link">Data & Account Deletion</a>
+        <a href="/security#permissions" class="footer-link">App Permissions Breakdown</a>
+      </div>
+
+      <div class="footer-column">
+        <div class="footer-heading">Downloads & Builds</div>
+        <a href="/#download" class="footer-link">Google Play Store Bundle (.aab)</a>
+        <a href="https://github.com/Prince364133/offmesh/releases" target="_blank" rel="noopener noreferrer" class="footer-link">Direct APK Releases</a>
+        <a href="https://github.com/Prince364133/offmesh/actions" target="_blank" rel="noopener noreferrer" class="footer-link">CI/CD Build Artifacts</a>
+        <a href="/#faq" class="footer-link">Frequently Asked Questions</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="copyright">
+        © 2026 OffMesh. Built with open-source cryptography (Ed25519, X25519, ChaCha20-Poly1305). All rights reserved.
+      </p>
+      <div class="footer-bottom-links">
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/delete-data">Delete Data</a>
+        <a href="/security">Security</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-surface-subtle);
+    padding: var(--space-16) 0 var(--space-8);
+    margin-top: auto;
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.2fr 1.2fr;
+    gap: var(--space-8);
+    margin-bottom: var(--space-12);
+  }
+
+  .footer-brand {
+    max-width: 380px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .brand-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-action-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brand-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+
+  .footer-desc {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--space-4);
+  }
+
+  .playstore-compliance-pill {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 6px 10px;
+    border-radius: var(--radius-md);
+  }
+
+  .footer-heading {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    letter-spacing: 0.04em;
+    margin-bottom: var(--space-4);
+    text-transform: uppercase;
+  }
+
+  .footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .footer-link {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    transition: color 0.15s ease;
+  }
+
+  .footer-link:hover {
+    color: var(--color-text-primary);
+  }
+
+  .footer-bottom {
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+
+  .copyright {
+    font-size: 0.8rem;
+    color: var(--color-text-tertiary);
+  }
+
+  .footer-bottom-links {
+    display: flex;
+    gap: var(--space-4);
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+  }
+
+  .footer-bottom-links a:hover {
+    color: var(--color-text-primary);
+  }
+
+  @media (max-width: 900px) {
+    .footer-top {
+      grid-template-columns: 1fr 1fr;
+    }
+    .footer-brand {
+      grid-column: span 2;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .footer-top {
+      grid-template-columns: 1fr;
+    }
+    .footer-brand {
+      grid-column: span 1;
+    }
+  }
+</style>

@@ -1,0 +1,125 @@
+﻿---
+// OffMesh Navbar Component - Strict Monochrome Minimal Theme
+---
+<header class="header">
+  <div class="container header-container">
+    <a href="/" class="brand" aria-label="OffMesh Home">
+      <div class="brand-icon">
+        <svg width="22" height="22" viewBox="0 0 48 48" fill="none">
+          <circle cx="16" cy="24" r="5" fill="#FFFFFF"/>
+          <circle cx="34" cy="15" r="4.5" fill="#FFFFFF"/>
+          <circle cx="34" cy="33" r="4.5" fill="#FFFFFF"/>
+          <line x1="16" y1="24" x2="34" y2="15" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+          <line x1="16" y1="24" x2="34" y2="33" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">OffMesh</span>
+        <span class="brand-pill">v1.0</span>
+      </div>
+    </a>
+
+    <nav class="nav-links" aria-label="Main Navigation">
+      <a href="/#features" class="nav-link">Features</a>
+      <a href="/#how-it-works" class="nav-link">How it Works</a>
+      <a href="/security" class="nav-link">Security</a>
+      <a href="/privacy" class="nav-link">Compliance & Privacy</a>
+      <a href="/delete-data" class="nav-link">Data Deletion</a>
+      <a href="https://github.com/Prince364133/offmesh" target="_blank" rel="noopener noreferrer" class="nav-link">GitHub</a>
+    </nav>
+
+    <div class="nav-actions">
+      <div class="badge-live" title="End-to-End Encrypted Opportunistic Mesh Ready">
+        <span class="pulse-dot"></span>
+        <span class="badge-text">E2EE Mesh Ready</span>
+      </div>
+      <a href="/#download" class="btn-primary btn-sm">Get OffMesh</a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-action-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brand-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .brand-pill {
+    margin-left: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border);
+    padding: 1px 6px;
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+  }
+
+  .nav-link {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    transition: color 0.15s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--color-text-primary);
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .btn-sm {
+    padding: 8px 18px;
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 860px) {
+    .nav-links {
+      display: none;
+    }
+  }
+</style>
