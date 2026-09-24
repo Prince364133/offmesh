@@ -1,0 +1,26 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'net.nearlink.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'net.nearlink.app'
+        minSdk 31          // Android 12+: new Bluetooth permission model
+        targetSdk 35
+        versionCode 1
+        versionName '0.1-research'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    // The transport-independent core (tested on the JVM by ../build.sh) is compiled straight into the app.
+    sourceSets { main { java { srcDirs += ['../../core/src'] } } }
+    buildTypes { release { minifyEnabled false } }
+}
+
+dependencies {
+    // Fallback JCA provider for Ed25519 / X25519 / ChaCha20-Poly1305 if the phone's platform provider lacks them.
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
+}

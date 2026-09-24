@@ -1,0 +1,24 @@
+SIMULATION  N=24 groups=3 msgs=40 horizon=360min pIntra=0.0100 pInter=0.0015 seed=42
+policy          deliv@10m deliv@60m deliv@6h  medianLat(min)  meanRelayCopies/msg  bundleTransfers
+direct (L=1)            3%       18%      45%             82*                  0.0               18
+spray&wait L=4          3%       43%      88%             67*                  1.0              147
+spray&wait L=8          3%       75%      95%             47*                  1.2              274
+spray&wait L=16         3%       83%     100%              41                  1.3              431
+epidemic(~L=255)        3%       85%     100%              40                  1.6              680
+
+SIMULATION  N=24 groups=3 msgs=40 horizon=360min pIntra=0.0100 pInter=0.0015 seed=7
+policy          deliv@10m deliv@60m deliv@6h  medianLat(min)  meanRelayCopies/msg  bundleTransfers
+direct (L=1)            0%       15%      55%            127*                  0.0               22
+spray&wait L=4          0%       33%      88%             84*                  1.0              149
+spray&wait L=8          0%       45%     100%              71                  1.5              279
+spray&wait L=16         0%       58%     100%              46                  1.8              425
+epidemic(~L=255)        0%       65%     100%              46                  1.9              619
+
+SIMULATION  N=24 groups=3 msgs=40 horizon=360min pIntra=0.0100 pInter=0.0015 seed=123
+policy          deliv@10m deliv@60m deliv@6h  medianLat(min)  meanRelayCopies/msg  bundleTransfers
+direct (L=1)            0%        8%      53%            180*                  0.0               21
+spray&wait L=4          3%       35%      90%             95*                  1.2              153
+spray&wait L=8          3%       48%     100%              70                  1.7              303
+spray&wait L=16         3%       60%     100%              44                  2.0              525
+epidemic(~L=255)        3%       70%     100%              42                  2.5              785
+

@@ -1,0 +1,22 @@
+PASS  T01 crypto self-test (X25519, Ed25519, HKDF, ChaCha20-Poly1305)
+PASS  T02 HKDF matches RFC 5869 test case 1
+PASS  T03 seal/open roundtrip incl. non-ASCII text
+PASS  T04 tampering: ciphertext bit-flip, header change, wrong recipient all rejected
+PASS  T05 contact card roundtrip + safety code symmetric
+PASS  T06 fuzz: 20k random/mutated inputs to Bundle/Receipt/card parsers never crash
+PASS  T07 direct delivery over a sync session, signed receipt -> DELIVERED
+PASS  T08 duplicate transmission: second sync delivers nothing new, one inbox entry
+PASS  T09 replayed bundle (raw re-injection) is rejected as duplicate
+PASS  T10 queue survives app restart (file store) and delivers later; delay measured
+PASS  T11 two-hop store-carry-forward A -> R -> B, receipt travels back B -> R -> A
+PASS  T12 relay cannot read content; wait phase: copies==1 not given to non-destination
+PASS  T13 forged receipt (attacker's own keys) does not purge message at relay
+PASS  T14 expiry: expired bundles purged, status EXPIRED, expired bundle refused
+PASS  T15 message from unknown sender refused (spam control)
+PASS  T16 relay storage limit -> ACK_FULL, sender keeps its copies
+PASS  T17 connection cut mid-transfer: no corruption, no loss, retry delivers exactly once
+PASS  T18 malformed frames from a hostile peer end the session without damaging state
+PASS  T19 bundle flood from one peer is capped per session
+PASS  T20 real TCP sockets over loopback (not radio)
+
+RESULT: 20 passed, 0 failed
