@@ -126,6 +126,8 @@ public final class Crypto {
 
     /** HKDF-SHA256 per RFC 5869. */
     public static byte[] hkdf(byte[] salt, byte[] ikm, byte[] info, int len) throws GeneralSecurityException {
+        if (salt == null || ikm == null || info == null || len < 0 || len > 255 * 32)
+            throw new GeneralSecurityException("invalid HKDF input/length");
         Mac mac = getMac("HmacSHA256");
         mac.init(new SecretKeySpec(salt.length == 0 ? new byte[32] : salt, "HmacSHA256"));
         byte[] prk = mac.doFinal(ikm);

@@ -1,32 +1,91 @@
 import 'package:flutter/material.dart';
+
 import 'core/engine.dart';
+import 'core/haven_engine.dart';
 import 'ui/theme.dart';
-import 'ui/screens/chats_screen.dart';
-import 'ui/screens/people_screen.dart';
+import 'ui/screens/chats_list_screen.dart';
+import 'ui/screens/couple_pairing_screen.dart';
 import 'ui/screens/nearby_screen.dart';
 import 'ui/screens/settings_screen.dart';
+import 'ui/screens/decoy_calculator_screen.dart';
+import 'ui/screens/auth_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NearLinkEngine.instance.init();
-  runApp(const OffMeshApp());
+  await HavenEngine.instance.init();
+  runApp(OffMeshApp(engine: OffMeshEngine.instance));
 }
 
-class OffMeshApp extends StatelessWidget {
-  const OffMeshApp({super.key});
+class OffMeshApp extends StatefulWidget {
+  final OffMeshEngine? engine;
+  const OffMeshApp({super.key, this.engine});
 
   @override
+  State<OffMeshApp> createState() => _OffMeshAppState();
+}
+
+class _OffMeshAppState extends State<OffMeshApp> {
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'OffMesh',
-      debugShowCheckedModeBanner: false,
-      theme: OffMeshTheme.lightTheme,
-      home: const MainNavigationScreen(),
+    final haven = HavenEngine.instance;
+
+    return ListenableBuilder(
+      listenable: haven,
+      builder: (context, _) {
+        final disguise = haven.stealthSettings.appDisguise;
+        final appTitle = disguise == 'CALCULATOR'
+            ? 'Calculator'
+            : (disguise == 'NOTES' ? 'Quick Notes' : 'OffMesh Haven');
+
+        return MaterialApp(
+          title: appTitle,
+          debugShowCheckedModeBanner: false,
+          theme: OffMeshTheme.romanticTheme,
+          home: EngineScope(
+            engine: widget.engine ?? OffMeshEngine.instance,
+            child: const _AppRootRouter(),
+          ),
+        );
+      },
     );
   }
 }
 
-typedef NearLinkApp = OffMeshApp;
+class _AppRootRouter extends StatefulWidget {
+  const _AppRootRouter();
+
+  @override
+  State<_AppRootRouter> createState() => _AppRootRouterState();
+}
+
+class _AppRootRouterState extends State<_AppRootRouter> {
+  @override
+  Widget build(BuildContext context) {
+    final haven = HavenEngine.instance;
+
+    return ListenableBuilder(
+      listenable: haven,
+      builder: (context, _) {
+        // 1. If Stealth Decoy Mode is active and not unlocked with PIN:
+        if (!haven.isStealthUnlocked && haven.stealthSettings.appDisguise == 'CALCULATOR') {
+          return DecoyCalculatorScreen(
+            onUnlocked: () => setState(() {}),
+          );
+        }
+
+        // 2. If user is not authenticated:
+        if (!haven.isAuthenticated) {
+          return AuthScreen(
+            onAuthenticated: () => setState(() {}),
+          );
+        }
+
+        // 3. Authenticated & Unlocked: Main 4-Tab Couple & Mesh Navigation
+        return const MainNavigationScreen();
+      },
+    );
+  }
+}
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -39,8 +98,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _tabs = const [
-    ChatsScreen(),
-    PeopleScreen(),
+    ChatsListScreen(),
+    CouplePairingScreen(),
     NearbyScreen(),
     SettingsScreen(),
   ];
@@ -48,20 +107,17 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _tabs,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _tabs),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: OffMeshTheme.border, width: 1)),
+          border: Border(top: BorderSide(color: OffMeshTheme.borderRomantic, width: 1)),
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) => setState(() => _currentIndex = index),
-          backgroundColor: OffMeshTheme.surface,
-          selectedItemColor: OffMeshTheme.actionPrimary,
-          unselectedItemColor: OffMeshTheme.textTertiary,
+          backgroundColor: OffMeshTheme.romanticSurface,
+          selectedItemColor: OffMeshTheme.passionRose,
+          unselectedItemColor: OffMeshTheme.textMuted,
           type: BottomNavigationBarType.fixed,
           elevation: 0,
           items: const [
@@ -71,18 +127,18 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               label: 'Chats',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.people_outline),
-              activeIcon: Icon(Icons.people),
-              label: 'People',
+              icon: Icon(Icons.favorite_border),
+              activeIcon: Icon(Icons.favorite),
+              label: 'Sanctuary',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.radar_outlined),
-              activeIcon: Icon(Icons.radar),
-              label: 'Nearby',
+              icon: Icon(Icons.bluetooth_searching),
+              activeIcon: Icon(Icons.bluetooth_connected),
+              label: 'Nearby Mesh',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined),
-              activeIcon: Icon(Icons.settings),
+              icon: Icon(Icons.shield_outlined),
+              activeIcon: Icon(Icons.security),
               label: 'Settings',
             ),
           ],

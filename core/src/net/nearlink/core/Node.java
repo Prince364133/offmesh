@@ -30,6 +30,15 @@ public final class Node {
         public int maxReceipts = 2000;
         public int maxSeen = 20000;
         public boolean acceptFromStrangers = false;        // only contacts may message me
+
+        void validate() {
+            if (lifetimeMs <= 0 || maxLifetimeMs < lifetimeMs || clockSkewMs < 0)
+                throw new IllegalArgumentException("invalid time configuration");
+            if (initialCopies < 1 || initialCopies > 255 || hopLimit < 1 || hopLimit > 255)
+                throw new IllegalArgumentException("invalid routing configuration");
+            if (maxRelayBundles < 0 || maxReceipts < 0 || maxSeen < 1)
+                throw new IllegalArgumentException("invalid storage configuration");
+        }
     }
 
     public enum Role { OWN, RELAY }
@@ -54,6 +63,8 @@ public final class Node {
     /** Result codes carried in BUNDLE_ACK frames. */
     public static final int ACK_RELAYED = 0, ACK_DELIVERED = 1, ACK_DUPLICATE = 2, ACK_INVALID = 3,
             ACK_FULL = 4, ACK_EXPIRED = 5, ACK_REFUSED = 6;
+    private static final int MAX_STATE_ITEMS = 100_000;
+    private static final int MAX_STATE_BYTES = 64 * 1024 * 1024;
 
     public final Identity me;
     public final Config cfg;
@@ -68,10 +79,14 @@ public final class Node {
     private final List<String> log = new ArrayList<>();
 
     public Node(Identity me, Store store, LongSupplier clock, Config cfg) throws IOException {
+        if (me == null || store == null || clock == null || cfg == null) throw new IllegalArgumentException("null node dependency");
+        cfg.validate();
         this.me = me; this.store = store; this.clock = clock; this.cfg = cfg;
         byte[] saved = store.load();
         if (saved != null) {
-            try { restore(saved); } catch (Bytes.MalformedException e) { throw new IOException("corrupt state: " + e.getMessage()); }
+            if (saved.length > MAX_STATE_BYTES) throw new IOException("state too large");
+            try { restore(saved); }
+            catch (Bytes.MalformedException | RuntimeException e) { throw new IOException("corrupt state: " + e.getMessage(), e); }
         }
     }
 
@@ -79,21 +94,33 @@ public final class Node {
     public long now() { return clock.getAsLong(); }
 
     // ------------------------------------------------------------------ user API
-    public synchronized void addContact(Contact c) throws IOException { contacts.put(c.idHex(), c); persist(); }
+    public synchronized void addContact(Contact c) throws IOException {
+        if (c == null) throw new IllegalArgumentException("contact must not be null");
+        String id = c.idHex(); Contact previous = contacts.put(id, c);
+        try { persist(); }
+        catch (IOException e) { if (previous == null) contacts.remove(id); else contacts.put(id, previous); throw e; }
+    }
     public synchronized List<Contact> contacts() { return new ArrayList<>(contacts.values()); }
     public synchronized Contact contact(String idHex) { return contacts.get(idHex); }
 
     public synchronized String send(String toIdHex, String text) throws IOException, GeneralSecurityException {
+        if (toIdHex == null || toIdHex.length() != 64) throw new IllegalArgumentException("invalid recipient id");
         Contact to = contacts.get(toIdHex);
         if (to == null) throw new IllegalArgumentException("unknown contact");
         long now = now();
         Bundle b = Sealer.seal(me, to, text, now, cfg.lifetimeMs, cfg.initialCopies, cfg.hopLimit);
         Held h = new Held(); h.bundle = b; h.role = Role.OWN; h.storedAt = now;
-        held.put(b.idHex(), h);
-        seen.put(b.idHex(), b.expiresMs);
-        Outgoing o = new Outgoing(); o.msgId = b.idHex(); o.toId = toIdHex; o.text = text; o.created = now; o.expires = b.expiresMs;
-        outgoing.put(o.msgId, o);
-        persist();
+        String id = b.idHex();
+        Held previousHeld = held.put(id, h); Long previousSeen = seen.put(id, b.expiresMs);
+        Outgoing o = new Outgoing(); o.msgId = id; o.toId = toIdHex; o.text = text; o.created = now; o.expires = b.expiresMs;
+        Outgoing previousOutgoing = outgoing.put(o.msgId, o);
+        try { persist(); }
+        catch (IOException e) {
+            if (previousHeld == null) held.remove(id); else held.put(id, previousHeld);
+            if (previousSeen == null) seen.remove(id); else seen.put(id, previousSeen);
+            if (previousOutgoing == null) outgoing.remove(id); else outgoing.put(id, previousOutgoing);
+            throw e;
+        }
         return o.msgId;
     }
 
@@ -173,6 +200,9 @@ public final class Node {
 
     /** Handles an incoming bundle; returns an ACK_* code. */
     synchronized int acceptBundle(Bundle b, Receipt[] receiptOut) throws IOException {
+        if (b == null || receiptOut == null || receiptOut.length == 0) throw new IllegalArgumentException("invalid bundle receiver arguments");
+        receiptOut[0] = null;
+        try { b.validate(); } catch (RuntimeException e) { return ACK_INVALID; }
         long now = now();
         String id = b.idHex();
         if (b.expiresMs <= now) return ACK_EXPIRED;
@@ -185,16 +215,21 @@ public final class Node {
             if (seen.containsKey(id)) return ACK_DUPLICATE;
             Sealer.Opened m;
             try { m = Sealer.open(me, b); }
-            catch (GeneralSecurityException | Bytes.MalformedException e) { log.add("reject " + id + ": " + e.getMessage()); return ACK_INVALID; }
+            catch (GeneralSecurityException | Bytes.MalformedException | RuntimeException e) { log.add("reject " + id + ": " + e.getMessage()); return ACK_INVALID; }
             String from = Bytes.hex(m.senderId);
             if (!cfg.acceptFromStrangers && !contacts.containsKey(from)) { log.add("refused message from unknown sender " + from); return ACK_REFUSED; }
             Incoming in = new Incoming(); in.msgId = id; in.fromId = from; in.text = m.text; in.sentAt = m.sentAt; in.receivedAt = now;
             inbox.add(in);
-            seen.put(id, b.expiresMs);
+            Long previousSeen = seen.put(id, b.expiresMs);
             Receipt r = Receipt.create(me, b.msgId, b.expiresMs);
-            receipts.put(id, r);
+            Receipt previousReceipt = receipts.put(id, r);
             receiptOut[0] = r;
-            persist();
+            try { persist(); }
+            catch (IOException e) {
+                inbox.remove(inbox.size() - 1); if (previousSeen == null) seen.remove(id); else seen.put(id, previousSeen);
+                if (previousReceipt == null) receipts.remove(id); else receipts.put(id, previousReceipt);
+                receiptOut[0] = null; throw e;
+            }
             return ACK_DELIVERED;
         }
 
@@ -202,29 +237,37 @@ public final class Node {
         if (relayCount() >= cfg.maxRelayBundles) return ACK_FULL;
         Held h = new Held(); h.bundle = b; h.role = Role.RELAY; h.storedAt = now;
         held.put(id, h);
-        seen.put(id, b.expiresMs);
+        Long previousSeen = seen.put(id, b.expiresMs);
         trimSeen();
-        persist();
+        try { persist(); }
+        catch (IOException e) {
+            held.remove(id); if (previousSeen == null) seen.remove(id); else seen.put(id, previousSeen); throw e;
+        }
         return ACK_RELAYED;
     }
 
     /** Handles an incoming receipt. Returns true if it was new and valid. */
     synchronized boolean acceptReceipt(Receipt r) throws IOException {
+        if (r == null) throw new IllegalArgumentException("receipt must not be null");
+        try { r.validate(); } catch (RuntimeException e) { return false; }
         String id = r.idHex();
         if (r.expiresMs <= now() || receipts.containsKey(id)) return false;
         Held h = held.get(id);
+        // A receipt without a locally held bundle cannot be bound to anything. Keeping it
+        // would let an attacker reserve an arbitrary 128-bit message id and suppress a
+        // later valid bundle, so unknown receipts are deliberately discarded.
+        if (h == null || !r.validFor(h.bundle)) { log.add("unbound receipt ignored for " + id); return false; }
         Outgoing o = outgoing.get(id);
-        if (h != null) {
-            if (!r.validFor(h.bundle)) { log.add("forged receipt ignored for " + id); return false; }
-            held.remove(id);
-            if (o != null) { o.status = Status.DELIVERED; o.deliveredAt = now(); }
-        } else {
-            if (!r.selfValid()) return false;
-            if (receipts.size() >= cfg.maxReceipts) return false;
+        held.remove(id);
+        Node.Status previousStatus = null; long previousDelivered = 0;
+        if (o != null) { previousStatus = o.status; previousDelivered = o.deliveredAt; o.status = Status.DELIVERED; o.deliveredAt = now(); }
+        Receipt previousReceipt = receipts.put(id, r); Long previousSeen = seen.put(id, r.expiresMs);
+        try { persist(); }
+        catch (IOException e) {
+            held.put(id, h); if (o != null) { o.status = previousStatus; o.deliveredAt = previousDelivered; }
+            if (previousReceipt == null) receipts.remove(id); else receipts.put(id, previousReceipt);
+            if (previousSeen == null) seen.remove(id); else seen.put(id, previousSeen); throw e;
         }
-        receipts.put(id, r);
-        seen.put(id, r.expiresMs);
-        persist();
         return true;
     }
 
@@ -245,28 +288,57 @@ public final class Node {
              .u8(g.status.ordinal()).u32(g.relayHandoffs).u64(g.deliveredAt);
         o.u32(inbox.size());
         for (Incoming i : inbox) o.bytes(Bytes.hex(i.msgId)).bytes(Bytes.hex(i.fromId)).var16(Bytes.utf8(i.text)).u64(i.sentAt).u64(i.receivedAt);
-        store.save(o.done());
+        byte[] state = o.done();
+        if (state.length > MAX_STATE_BYTES) throw new IOException("state too large");
+        store.save(state);
+    }
+
+    private static int count(Bytes.In in, int max, String name) throws Bytes.MalformedException {
+        int n = in.u32();
+        if (n < 0 || n > max) throw new Bytes.MalformedException(name + " count out of range");
+        return n;
+    }
+
+    private static long time(Bytes.In in, String name) throws Bytes.MalformedException {
+        long t = in.u64();
+        if (t < 0) throw new Bytes.MalformedException(name + " out of range");
+        return t;
     }
 
     private void restore(byte[] d) throws Bytes.MalformedException {
         Bytes.In in = new Bytes.In(d);
         if (!"NLS1".equals(new String(in.bytes(4), StandardCharsets.UTF_8))) throw new Bytes.MalformedException("bad state magic");
-        for (int n = in.u32(); n > 0; n--) { Contact c = Contact.parseCard(new String(in.var16(4096), StandardCharsets.UTF_8)); contacts.put(c.idHex(), c); }
-        for (int n = in.u32(); n > 0; n--) {
-            Held h = new Held(); h.role = Role.values()[in.u8()]; h.storedAt = in.u64(); h.bundle = Bundle.decode(in.var16(65535));
-            held.put(h.bundle.idHex(), h);
+        for (int n = count(in, MAX_STATE_ITEMS, "contact"); n > 0; n--) {
+            Contact c = Contact.parseCard(Bytes.decodeUtf8(in.var16(512))); contacts.put(c.idHex(), c);
         }
-        for (int n = in.u32(); n > 0; n--) { Receipt r = Receipt.decode(in.var16(1024)); receipts.put(r.idHex(), r); }
-        for (int n = in.u32(); n > 0; n--) seen.put(Bytes.hex(in.bytes(16)), in.u64());
-        for (int n = in.u32(); n > 0; n--) {
+        for (int n = count(in, MAX_STATE_ITEMS, "held"); n > 0; n--) {
+            Held h = new Held(); int role = in.u8();
+            if (role >= Role.values().length) throw new Bytes.MalformedException("invalid held role");
+            h.role = Role.values()[role]; h.storedAt = time(in, "storedAt"); h.bundle = Bundle.decode(in.var16(Bundle.HEADER_LEN + Bundle.MAX_CT));
+            if (held.put(h.bundle.idHex(), h) != null) throw new Bytes.MalformedException("duplicate held bundle");
+        }
+        for (int n = count(in, Math.min(MAX_STATE_ITEMS, cfg.maxReceipts), "receipt"); n > 0; n--) {
+            Receipt r = Receipt.decode(in.var16(Receipt.LEN));
+            if (receipts.put(r.idHex(), r) != null) throw new Bytes.MalformedException("duplicate receipt");
+        }
+        for (int n = count(in, cfg.maxSeen, "seen"); n > 0; n--) {
+            String id = Bytes.hex(in.bytes(16)); long expires = time(in, "seen expiry");
+            if (seen.put(id, expires) != null) throw new Bytes.MalformedException("duplicate seen id");
+        }
+        for (int n = count(in, MAX_STATE_ITEMS, "outgoing"); n > 0; n--) {
             Outgoing g = new Outgoing(); g.msgId = Bytes.hex(in.bytes(16)); g.toId = Bytes.hex(in.bytes(32));
-            g.text = new String(in.var16(65535), StandardCharsets.UTF_8); g.created = in.u64(); g.expires = in.u64();
-            g.status = Status.values()[in.u8()]; g.relayHandoffs = in.u32(); g.deliveredAt = in.u64();
-            outgoing.put(g.msgId, g);
+            g.text = Bytes.decodeUtf8(in.var16(Sealer.MAX_BODY)); g.created = time(in, "outgoing created"); g.expires = time(in, "outgoing expiry");
+            if (g.expires <= g.created) throw new Bytes.MalformedException("invalid outgoing timestamps");
+            int status = in.u8(); if (status >= Status.values().length) throw new Bytes.MalformedException("invalid outgoing status");
+            g.status = Status.values()[status]; g.relayHandoffs = in.u32();
+            if (g.relayHandoffs < 0) throw new Bytes.MalformedException("relay handoffs out of range");
+            g.deliveredAt = time(in, "deliveredAt");
+            if (outgoing.put(g.msgId, g) != null) throw new Bytes.MalformedException("duplicate outgoing id");
         }
-        for (int n = in.u32(); n > 0; n--) {
+        for (int n = count(in, MAX_STATE_ITEMS, "inbox"); n > 0; n--) {
             Incoming i = new Incoming(); i.msgId = Bytes.hex(in.bytes(16)); i.fromId = Bytes.hex(in.bytes(32));
-            i.text = new String(in.var16(65535), StandardCharsets.UTF_8); i.sentAt = in.u64(); i.receivedAt = in.u64();
+            i.text = Bytes.decodeUtf8(in.var16(Sealer.MAX_BODY)); i.sentAt = time(in, "sentAt"); i.receivedAt = time(in, "receivedAt");
+            if (inbox.stream().anyMatch(old -> old.msgId.equals(i.msgId))) throw new Bytes.MalformedException("duplicate inbox id");
             inbox.add(i);
         }
         in.end();

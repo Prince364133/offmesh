@@ -23,9 +23,15 @@ public final class Bundle {
 
     public Bundle(byte[] msgId, byte[] recipientId, long createdMs, long expiresMs,
                   int copies, int hopCount, int hopLimit, byte[] ephemeralPub, byte[] ciphertext) {
-        this.msgId = msgId; this.recipientId = recipientId; this.createdMs = createdMs; this.expiresMs = expiresMs;
+        Bytes.requireLength(msgId, 16, "msgId"); Bytes.requireLength(recipientId, 32, "recipientId");
+        Bytes.requireLength(ephemeralPub, 32, "ephemeralPub");
+        if (ciphertext == null || ciphertext.length < 16 || ciphertext.length > MAX_CT)
+            throw new IllegalArgumentException("invalid ciphertext length");
+        if (createdMs < 0 || expiresMs <= createdMs) throw new IllegalArgumentException("invalid bundle timestamps");
+        this.msgId = msgId.clone(); this.recipientId = recipientId.clone(); this.createdMs = createdMs; this.expiresMs = expiresMs;
         this.copies = copies; this.hopCount = hopCount; this.hopLimit = hopLimit;
-        this.ephemeralPub = ephemeralPub; this.ciphertext = ciphertext;
+        this.ephemeralPub = ephemeralPub.clone(); this.ciphertext = ciphertext.clone();
+        validateRouting();
     }
 
     public String idHex() { return Bytes.hex(msgId); }
@@ -36,19 +42,37 @@ public final class Bundle {
     }
     public byte[] aad() { return aad(msgId, recipientId, createdMs, expiresMs, ephemeralPub); }
 
+    void validate() {
+        Bytes.requireLength(msgId, 16, "msgId"); Bytes.requireLength(recipientId, 32, "recipientId");
+        Bytes.requireLength(ephemeralPub, 32, "ephemeralPub");
+        if (ciphertext == null || ciphertext.length < 16 || ciphertext.length > MAX_CT)
+            throw new IllegalArgumentException("invalid ciphertext length");
+        if (createdMs < 0 || expiresMs <= createdMs) throw new IllegalArgumentException("invalid bundle timestamps");
+        validateRouting();
+    }
+
+    private void validateRouting() {
+        if (copies < 1 || copies > 255 || hopLimit < 1 || hopLimit > 255 || hopCount < 0 || hopCount > hopLimit)
+            throw new IllegalArgumentException("invalid routing fields");
+    }
+
     public byte[] encode() {
+        validateRouting();
         return new Bytes.Out().bytes(MAGIC).bytes(msgId).bytes(recipientId).u64(createdMs).u64(expiresMs)
                 .u8(copies).u8(hopCount).u8(hopLimit).bytes(ephemeralPub).var16(ciphertext).done();
     }
 
     public static Bundle decode(byte[] data) throws Bytes.MalformedException {
+        if (data == null || data.length < HEADER_LEN + 16 || data.length > HEADER_LEN + MAX_CT)
+            throw new Bytes.MalformedException("invalid bundle length");
         Bytes.In in = new Bytes.In(data);
         byte[] m = in.bytes(4);
         if (!java.util.Arrays.equals(m, MAGIC)) throw new Bytes.MalformedException("bad magic");
-        Bundle b = new Bundle(in.bytes(16), in.bytes(32), in.u64(), in.u64(), in.u8(), in.u8(), in.u8(), in.bytes(32), in.var16(MAX_CT));
-        in.end();
-        if (b.ciphertext.length < 16) throw new Bytes.MalformedException("ciphertext too short");
-        return b;
+        try {
+            Bundle b = new Bundle(in.bytes(16), in.bytes(32), in.u64(), in.u64(), in.u8(), in.u8(), in.u8(), in.bytes(32), in.var16(MAX_CT));
+            in.end();
+            return b;
+        } catch (IllegalArgumentException e) { throw new Bytes.MalformedException(e.getMessage()); }
     }
 
     public Bundle copyWith(int newCopies, int newHopCount) {

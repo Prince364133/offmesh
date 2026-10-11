@@ -16,10 +16,22 @@ public final class Receipt {
     public final long expiresMs;
 
     public Receipt(byte[] msgId, long expiresMs, byte[] signPub, byte[] dhPub, byte[] sig) {
-        this.msgId = msgId; this.expiresMs = expiresMs; this.signPub = signPub; this.dhPub = dhPub; this.sig = sig;
+        Bytes.requireLength(msgId, 16, "msgId"); Bytes.requireLength(signPub, 32, "signPub");
+        Bytes.requireLength(dhPub, 32, "dhPub"); Bytes.requireLength(sig, 64, "signature");
+        if (expiresMs <= 0) throw new IllegalArgumentException("invalid receipt expiry");
+        this.msgId = msgId.clone(); this.expiresMs = expiresMs;
+        this.signPub = signPub.clone(); this.dhPub = dhPub.clone(); this.sig = sig.clone();
+    }
+
+    void validate() {
+        Bytes.requireLength(msgId, 16, "msgId"); Bytes.requireLength(signPub, 32, "signPub");
+        Bytes.requireLength(dhPub, 32, "dhPub"); Bytes.requireLength(sig, 64, "signature");
+        if (expiresMs <= 0) throw new IllegalArgumentException("invalid receipt expiry");
     }
 
     static byte[] signedPart(byte[] msgId, long expiresMs) {
+        Bytes.requireLength(msgId, 16, "msgId");
+        if (expiresMs <= 0) throw new IllegalArgumentException("invalid receipt expiry");
         return new Bytes.Out().bytes(Bytes.utf8("NLRCPT1")).bytes(msgId).u64(expiresMs).done();
     }
 
@@ -29,23 +41,31 @@ public final class Receipt {
         } catch (java.security.GeneralSecurityException e) { throw new IllegalStateException(e); }
     }
 
-    public byte[] recipientId() { return Identity.idOf(signPub, dhPub); }
+    public byte[] recipientId() { validate(); return Identity.idOf(signPub, dhPub); }
 
     /** Signature valid (self-consistent). Binding to a bundle is checked separately via recipientId(). */
-    public boolean selfValid() { return Crypto.verify(signPub, signedPart(msgId, expiresMs), sig); }
+    public boolean selfValid() {
+        try { validate(); return Crypto.verify(signPub, signedPart(msgId, expiresMs), sig); }
+        catch (RuntimeException e) { return false; }
+    }
 
     public boolean validFor(Bundle b) {
-        return java.util.Arrays.equals(b.msgId, msgId) && b.expiresMs == expiresMs
-                && java.util.Arrays.equals(recipientId(), b.recipientId) && selfValid();
+        try {
+            return b != null && java.util.Arrays.equals(b.msgId, msgId) && b.expiresMs == expiresMs
+                    && java.util.Arrays.equals(recipientId(), b.recipientId) && selfValid();
+        } catch (RuntimeException e) { return false; }
     }
 
     public byte[] encode() { return new Bytes.Out().bytes(msgId).u64(expiresMs).bytes(signPub).bytes(dhPub).bytes(sig).done(); }
 
     public static Receipt decode(byte[] d) throws Bytes.MalformedException {
+        if (d == null || d.length != LEN) throw new Bytes.MalformedException("invalid receipt length");
         Bytes.In in = new Bytes.In(d);
-        Receipt r = new Receipt(in.bytes(16), in.u64(), in.bytes(32), in.bytes(32), in.bytes(64));
-        in.end();
-        return r;
+        try {
+            Receipt r = new Receipt(in.bytes(16), in.u64(), in.bytes(32), in.bytes(32), in.bytes(64));
+            in.end();
+            return r;
+        } catch (IllegalArgumentException e) { throw new Bytes.MalformedException(e.getMessage()); }
     }
 
     public String idHex() { return Bytes.hex(msgId); }

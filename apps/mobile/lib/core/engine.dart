@@ -1,299 +1,245 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:http/http.dart' as http;
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'models.dart';
+
 import 'crypto.dart';
+import 'engine_adapter.dart';
+import 'models.dart';
 
+/// Observable projection of persistent native state. No Dart signing keys,
+/// placeholder identities, optimistic delivery, or demo contacts.
 class OffMeshEngine extends ChangeNotifier {
-  static final OffMeshEngine instance = OffMeshEngine._internal();
+  static final OffMeshEngine instance = OffMeshEngine();
+  static final Guid offmeshBleUuid = Guid(
+    '00006e4c-0000-1000-8000-00805f9b34fb',
+  );
 
-  // Service UUID for OffMesh BLE Mesh Rendezvous
-  static final Guid offmeshBleUuid = Guid('00006e4c-0000-1000-8000-00805f9b34fb');
-  static Guid get nearlinkBleUuid => offmeshBleUuid;
+  final EngineAdapter adapter;
+  final GatewayAdapter gateway;
+  OffMeshEngine({
+    this.adapter = const PlatformEngineAdapter(),
+    this.gateway = const UnconfiguredGatewayAdapter(),
+  });
 
-  // Node identity
-  late Contact me;
-  final List<Contact> contacts = [];
-  final List<MessageItem> messages = [];
-  final Map<String, DiscoveredPeer> discoveredPeers = {};
-
+  EngineSnapshot? _snapshot;
+  Future<void>? _initializing;
+  bool _disposed = false;
+  bool _busy = false;
+  bool get isReady => _snapshot != null;
+  bool get isBusy => _busy;
+  Contact get me => _snapshot!.me;
   Contact get myCard => me;
-  bool get isGatewayOnline => isConnectedToBackend;
-  String get serverUrl => backendUrl;
+  List<Contact> get contacts =>
+      List.unmodifiable(_snapshot?.contacts ?? const <Contact>[]);
+  List<MessageItem> get messages =>
+      List.unmodifiable(_snapshot?.messages ?? const <MessageItem>[]);
+  String get storageProtection => _snapshot?.storageProtection ?? 'Unavailable';
+  String get cryptoProvider => _snapshot?.cryptoProvider ?? 'Unavailable';
+  String get gatewayDescription => gateway.description;
+  String? lastError;
+  String? lastSyncResult;
 
-  Future<void> syncWithGateway() => syncMerkleTreeWithBackend();
+  Future<void> init() {
+    if (isReady) return Future.value();
+    return _initializing ??= _initialize();
+  }
 
-  Contact? addContactFromCardString(String cardString) {
+  Future<void> _initialize() async {
     try {
-      final c = NearLinkCrypto.parseCard(cardString);
-      if (!contacts.any((existing) => existing.idHex == c.idHex)) {
-        contacts.add(c);
-        notifyListeners();
-      }
-      return c;
-    } catch (_) {
-      return null;
+      _apply(await adapter.initialize());
+      lastError = null;
+    } catch (e) {
+      lastError = e.toString();
+      rethrow;
+    } finally {
+      _initializing = null;
+      _notify();
     }
   }
 
-  String formatSafetyCode(String code) => code;
-
-  String getSafetyCodeFor(Contact c) {
-    return NearLinkCrypto.safetyCode(
-      NearLinkCrypto.unhex(me.idHex),
-      NearLinkCrypto.unhex(c.idHex),
+  void _apply(EngineSnapshot state) {
+    _snapshot = EngineSnapshot(
+      me: state.me,
+      contacts: List.unmodifiable(state.contacts),
+      messages: List.unmodifiable(
+        [...state.messages]
+          ..sort((a, b) => b.timestampMs.compareTo(a.timestampMs)),
+      ),
+      storageProtection: state.storageProtection,
+      cryptoProvider: state.cryptoProvider,
     );
   }
 
-  OffMeshEngine._internal() {
-    final rnd = Random(42);
-    final signPub = Uint8List.fromList(List.generate(32, (_) => rnd.nextInt(256)));
-    final dhPub = Uint8List.fromList(List.generate(32, (_) => rnd.nextInt(256)));
-    final userName = kIsWeb ? 'WebUser' : 'MobileUser';
-    final cardStr = NearLinkCrypto.formatCard(userName, signPub, dhPub);
-    me = NearLinkCrypto.parseCard(cardStr);
-  }
-
-  // Backend Gateway configuration (10.0.2.2 for Android emulator, 127.0.0.1 for Web/Desktop)
-  String backendUrl = kIsWeb ? 'http://127.0.0.1:3000' : 'http://10.0.2.2:3000';
-  bool isConnectedToBackend = false;
-  String latestServerMerkleRoot = '0000000000000000000000000000000000000000000000000000000000000000';
-  WebSocketChannel? _wsChannel;
-
-  // BLE state
-  bool isBleScanning = false;
-  StreamSubscription? _scanSub;
-
-  Future<void> init() async {
-    // Add demo contact
+  Future<T> _operation<T>(Future<T> Function() action) async {
+    if (!isReady) throw StateError('Engine is not initialized');
+    if (_busy) throw StateError('Another engine operation is in progress');
+    _busy = true;
+    lastError = null;
+    _notify();
     try {
-      final demoContact = NearLinkCrypto.parseCard(
-        'NL1:ABNzZGtfZ3Bob25lNjRfeDg2XzY0DH8JpNhaH0QHWuVMbBLs1EJ_9klueS-pd32wQVuBAoPLV8B8CWOYxWWdZn6W2Jg1TKzKONZ0lNAsVg3OtQ05Qw',
-      );
-      if (!contacts.any((c) => c.idHex == demoContact.idHex)) {
-        contacts.add(demoContact);
-      }
-    } catch (_) {}
-
-    notifyListeners();
-
-    // Start auto BLE scan if supported (mobile only)
-    if (!kIsWeb) {
-      try {
-        startBleScan();
-      } catch (e) {
-        debugPrint('BLE Scan not supported on this host: $e');
-      }
-    }
-
-    // Try backend connection
-    checkBackendHealth();
-  }
-
-  // ---------------------------------------------------------------- Messages
-  MessageItem sendMessage(Contact recipient, String text) {
-    final msgId = NearLinkCrypto.hex(
-      NearLinkCrypto.sha256([
-        utf8.encode(recipient.idHex),
-        utf8.encode(text),
-        utf8.encode(DateTime.now().millisecondsSinceEpoch.toString()),
-      ]),
-    ).substring(0, 32);
-
-    final msg = MessageItem(
-      id: msgId,
-      toIdHex: recipient.idHex,
-      fromIdHex: me.idHex,
-      text: text,
-      isOutgoing: true,
-      timestampMs: DateTime.now().millisecondsSinceEpoch,
-      status: MessageStatus.queued,
-    );
-
-    messages.insert(0, msg);
-    notifyListeners();
-
-    // Opportunistically sync to backend if online
-    if (isConnectedToBackend) {
-      _uploadBundleToGateway(msg);
-    }
-    return msg;
-  }
-
-  void markMessageForwarded(String msgId, [String? relay]) {
-    for (final m in messages) {
-      if (m.id == msgId && m.status == MessageStatus.queued) {
-        m.status = MessageStatus.forwarded;
-        m.relayHandoffs++;
-      }
-    }
-    notifyListeners();
-  }
-
-  void markMessageDelivered(String msgId) {
-    _applyReceiptPrune(msgId);
-  }
-
-  void addContact(String cardString) {
-    final c = NearLinkCrypto.parseCard(cardString);
-    if (!contacts.any((existing) => existing.idHex == c.idHex)) {
-      contacts.add(c);
-      notifyListeners();
+      return await action();
+    } catch (e) {
+      lastError = e.toString();
+      rethrow;
+    } finally {
+      _busy = false;
+      _notify();
     }
   }
 
-  // ---------------------------------------------------------------- BLE Radar
-  Future<void> startBleScan() async {
-    if (kIsWeb || isBleScanning) return;
-    try {
-      isBleScanning = true;
-      notifyListeners();
+  Future<void> refresh() => _operation(() async {
+    _apply(await adapter.snapshot());
+  });
 
-      _scanSub = FlutterBluePlus.scanResults.listen((results) {
-        for (final r in results) {
-          final isMesh = r.advertisementData.serviceUuids.contains(nearlinkBleUuid);
-          final name = r.advertisementData.advName.isNotEmpty
-              ? r.advertisementData.advName
-              : r.device.platformName.isNotEmpty
-                  ? r.device.platformName
-                  : 'Bluetooth Device';
+  Future<Contact> addContactFromCardString(String card) => _operation(() async {
+    final parsed = OffMeshCrypto.parseCard(card.trim());
+    if (parsed.idHex == me.idHex)
+      throw ArgumentError('Cannot add your own card');
+    _apply(await adapter.addContact(parsed.cardString));
+    return contacts.firstWhere((c) => c.idHex == parsed.idHex);
+  });
 
-          discoveredPeers[r.device.remoteId.str] = DiscoveredPeer(
-            name: name,
-            address: r.device.remoteId.str,
-            rssi: r.rssi,
-            lastSeen: DateTime.now(),
-            isNearLinkPeer: isMesh,
-          );
-        }
-        notifyListeners();
+  Future<void> sendMessage(Contact recipient, String text) =>
+      _operation(() async {
+        if (text.trim().isEmpty) throw ArgumentError('Message cannot be empty');
+        if (utf8.encode(text).length > 4000)
+          throw ArgumentError('Message exceeds 4000 UTF-8 bytes');
+        if (!contacts.any((c) => c.idHex == recipient.idHex))
+          throw ArgumentError('Unknown recipient');
+        _apply(await adapter.sendMessage(recipient.idHex, text));
       });
 
+  Future<void> syncWithGateway() => _operation(() async {
+    lastSyncResult = null;
+    _apply(await gateway.synchronize(adapter));
+    lastSyncResult =
+        'Gateway exchange completed. Check individual message statuses.';
+  });
+
+  Future<void> syncTcp(String host, int port) => _operation(() async {
+    lastSyncResult = null;
+    try {
+      final result = await adapter.syncTcp(host, port);
+      _apply(result.snapshot);
+      lastSyncResult = result.description;
+    } catch (_) {
+      // A failed session may still have persisted a valid incoming bundle or
+      // receipt. Refresh actual native state, but preserve the failure outcome.
+      try {
+        _apply(await adapter.snapshot());
+      } catch (_) {
+        /* Keep last known state. */
+      }
+      rethrow;
+    }
+  });
+
+  String getSafetyCodeFor(Contact c) => OffMeshCrypto.safetyCode(
+    OffMeshCrypto.unhex(me.idHex),
+    OffMeshCrypto.unhex(c.idHex),
+  );
+
+  // BLE is observation only, not a message transport. No automatic scan at boot.
+  final Map<String, DiscoveredPeer> _discoveredPeers = {};
+  Map<String, DiscoveredPeer> get discoveredPeers =>
+      Map.unmodifiable(_discoveredPeers);
+  bool isBleScanning = false;
+  String? scanError;
+  StreamSubscription<List<ScanResult>>? _scanSub;
+  StreamSubscription<bool>? _scanStateSub;
+
+  Future<void> startBleScan() async {
+    if (isBleScanning) return;
+    scanError = null;
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+      scanError = 'BLE observation is available on Android only.';
+      _notify();
+      return;
+    }
+    try {
+      if (!await FlutterBluePlus.isSupported)
+        throw UnsupportedError('Bluetooth LE is unavailable');
+      await _scanSub?.cancel();
+      await _scanStateSub?.cancel();
+      _discoveredPeers.clear();
+      _scanStateSub = FlutterBluePlus.isScanning.listen((scanning) {
+        isBleScanning = scanning;
+        _notify();
+      });
+      _scanSub = FlutterBluePlus.onScanResults.listen(
+        (results) {
+          final now = DateTime.now();
+          _discoveredPeers.removeWhere(
+            (_, p) => now.difference(p.lastSeen) > const Duration(seconds: 30),
+          );
+          for (final result in results) {
+            _discoveredPeers[result.device.remoteId.str] = DiscoveredPeer(
+              name: result.advertisementData.advName.isNotEmpty
+                  ? result.advertisementData.advName
+                  : 'Bluetooth device',
+              address: result.device.remoteId.str,
+              rssi: result.rssi,
+              lastSeen: now,
+              isNearLinkPeer: result.advertisementData.serviceUuids.contains(
+                offmeshBleUuid,
+              ),
+            );
+          }
+          _notify();
+        },
+        onError: (Object error) {
+          scanError = error.toString();
+          _notify();
+        },
+      );
       await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
     } catch (e) {
-      debugPrint('BLE scan error: $e');
-    } finally {
+      scanError = 'Scan failed: $e';
       isBleScanning = false;
-      notifyListeners();
+      await _scanSub?.cancel();
+      await _scanStateSub?.cancel();
+      _notify();
     }
   }
 
   Future<void> stopBleScan() async {
-    if (kIsWeb) return;
-    await FlutterBluePlus.stopScan();
-    await _scanSub?.cancel();
-    isBleScanning = false;
-    notifyListeners();
-  }
-
-  // ---------------------------------------------------------------- Gateway Sync
-  Future<void> checkBackendHealth() async {
     try {
-      final res = await http.get(Uri.parse('$backendUrl/health')).timeout(const Duration(seconds: 3));
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        isConnectedToBackend = true;
-        latestServerMerkleRoot = data['merkleRootHex'] ?? latestServerMerkleRoot;
-        notifyListeners();
-
-        // Connect WebSocket if not connected
-        _connectGatewayWs();
-      } else {
-        isConnectedToBackend = false;
-        notifyListeners();
-      }
-    } catch (_) {
-      isConnectedToBackend = false;
-      notifyListeners();
-    }
-  }
-
-  void _connectGatewayWs() {
-    try {
-      final wsUrl = backendUrl.replaceFirst('http', 'ws');
-      _wsChannel = WebSocketChannel.connect(Uri.parse('$wsUrl/ws?idHex=${me.idHex}'));
-      _wsChannel!.stream.listen(
-        (data) {
-          try {
-            final msg = jsonDecode(data);
-            if (msg['type'] == 'ANTI_PACKET_PRUNE') {
-              final prunedMsgId = msg['data']['msgIdHex'];
-              _applyReceiptPrune(prunedMsgId);
-            }
-          } catch (_) {}
-        },
-        onError: (_) {
-          isConnectedToBackend = false;
-          notifyListeners();
-        },
-        onDone: () {
-          isConnectedToBackend = false;
-          notifyListeners();
-        },
-      );
-    } catch (_) {}
-  }
-
-  Future<void> syncMerkleTreeWithBackend() async {
-    if (!isConnectedToBackend) await checkBackendHealth();
-    if (!isConnectedToBackend) return;
-
-    try {
-      final res = await http.post(
-        Uri.parse('$backendUrl/api/v1/sync/merkle/reconcile'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'rootHashHex': latestServerMerkleRoot,
-          'dayHashes': {},
-        }),
-      );
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        if (data['inSync'] == true) {
-          debugPrint('[Merkle] Already synchronized in microseconds');
-        } else {
-          final missing = data['missingRecords'] as List?;
-          if (missing != null) {
-            for (final item in missing) {
-              _applyReceiptPrune(item['id']);
-            }
-          }
-        }
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+        await FlutterBluePlus.stopScan();
       }
     } catch (e) {
-      debugPrint('Merkle sync failed: $e');
+      scanError = 'Could not stop scan: $e';
+    } finally {
+      await _scanSub?.cancel();
+      await _scanStateSub?.cancel();
+      isBleScanning = false;
+      _notify();
     }
   }
 
-  void _uploadBundleToGateway(MessageItem msg) {
-    // Demo simulated upload to backend
-    Timer(const Duration(milliseconds: 800), () {
-      msg.status = MessageStatus.forwarded;
-      msg.relayHandoffs++;
-      notifyListeners();
-    });
-  }
-
-  void _applyReceiptPrune(String msgId) {
-    for (final m in messages) {
-      if (m.id == msgId && m.status != MessageStatus.delivered) {
-        m.status = MessageStatus.delivered;
-        m.deliveredAtMs = DateTime.now().millisecondsSinceEpoch;
-      }
-    }
-    notifyListeners();
+  void _notify() {
+    if (!_disposed) notifyListeners();
   }
 
   @override
   void dispose() {
-    _scanSub?.cancel();
-    _wsChannel?.sink.close();
+    _disposed = true;
+    unawaited(stopBleScan());
     super.dispose();
   }
+}
+
+class EngineScope extends InheritedNotifier<OffMeshEngine> {
+  const EngineScope({
+    super.key,
+    required OffMeshEngine engine,
+    required super.child,
+  }) : super(notifier: engine);
+  static OffMeshEngine of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<EngineScope>()!.notifier!;
 }
 
 typedef NearLinkEngine = OffMeshEngine;

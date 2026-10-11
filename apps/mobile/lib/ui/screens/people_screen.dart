@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
 import '../../core/engine.dart';
 import '../../core/models.dart';
 import '../theme.dart';
@@ -24,7 +25,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final engine = NearLinkEngine.instance;
+    final engine = EngineScope.of(context);
 
     return ListenableBuilder(
       listenable: engine,
@@ -46,12 +47,18 @@ class _PeopleScreenState extends State<PeopleScreen> {
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.qr_code_2, color: OffMeshTheme.textPrimary),
+                icon: const Icon(
+                  Icons.qr_code_2,
+                  color: OffMeshTheme.textPrimary,
+                ),
                 tooltip: 'My QR Card',
                 onPressed: () => _showMyCardDialog(context, myCard),
               ),
               IconButton(
-                icon: const Icon(Icons.person_add_alt_1, color: OffMeshTheme.textPrimary),
+                icon: const Icon(
+                  Icons.person_add_alt_1,
+                  color: OffMeshTheme.textPrimary,
+                ),
                 tooltip: 'Add Contact',
                 onPressed: () => _showAddContactDialog(context),
               ),
@@ -61,17 +68,31 @@ class _PeopleScreenState extends State<PeopleScreen> {
             children: [
               // Search field (subtle surface #F7F7F8)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: TextField(
                   controller: _searchCtrl,
                   onChanged: (val) => setState(() => _searchQuery = val.trim()),
-                  style: const TextStyle(fontSize: 14, color: OffMeshTheme.textPrimary),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: OffMeshTheme.textPrimary,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'Search contacts...',
-                    prefixIcon: const Icon(Icons.search, size: 20, color: OffMeshTheme.textTertiary),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      size: 20,
+                      color: OffMeshTheme.textTertiary,
+                    ),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18, color: OffMeshTheme.textTertiary),
+                            icon: const Icon(
+                              Icons.clear,
+                              size: 18,
+                              color: OffMeshTheme.textTertiary,
+                            ),
                             onPressed: () {
                               _searchCtrl.clear();
                               setState(() => _searchQuery = '');
@@ -79,13 +100,20 @@ class _PeopleScreenState extends State<PeopleScreen> {
                           )
                         : null,
                     fillColor: OffMeshTheme.surfaceSubtle,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(OffMeshTheme.radiusInput),
+                      borderRadius: BorderRadius.circular(
+                        OffMeshTheme.radiusInput,
+                      ),
                       borderSide: const BorderSide(color: OffMeshTheme.border),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(OffMeshTheme.radiusInput),
+                      borderRadius: BorderRadius.circular(
+                        OffMeshTheme.radiusInput,
+                      ),
                       borderSide: const BorderSide(color: OffMeshTheme.border),
                     ),
                   ),
@@ -95,7 +123,10 @@ class _PeopleScreenState extends State<PeopleScreen> {
               // My Card Quick Header Row
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: OffMeshTheme.surfaceSubtle,
                   borderRadius: BorderRadius.circular(OffMeshTheme.radiusCard),
@@ -106,7 +137,11 @@ class _PeopleScreenState extends State<PeopleScreen> {
                     CircleAvatar(
                       radius: 20,
                       backgroundColor: OffMeshTheme.actionPrimary,
-                      child: const Icon(Icons.fingerprint, color: OffMeshTheme.actionOnPrimary, size: 22),
+                      child: const Icon(
+                        Icons.fingerprint,
+                        color: OffMeshTheme.actionOnPrimary,
+                        size: 22,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -136,9 +171,15 @@ class _PeopleScreenState extends State<PeopleScreen> {
                     OutlinedButton.icon(
                       onPressed: () => _showMyCardDialog(context, myCard),
                       icon: const Icon(Icons.qr_code, size: 16),
-                      label: const Text('Show QR', style: TextStyle(fontSize: 12)),
+                      label: const Text(
+                        'Show QR',
+                        style: TextStyle(fontSize: 12),
+                      ),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
                     ),
                   ],
@@ -149,11 +190,14 @@ class _PeopleScreenState extends State<PeopleScreen> {
 
               // Contacts List Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Row(
                   children: [
                     const Text(
-                      'VERIFIED CONTACTS',
+                      'SAVED CONTACTS',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -163,7 +207,10 @@ class _PeopleScreenState extends State<PeopleScreen> {
                     ),
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 1,
+                      ),
                       decoration: BoxDecoration(
                         color: OffMeshTheme.surfaceSubtle,
                         borderRadius: BorderRadius.circular(8),
@@ -188,16 +235,27 @@ class _PeopleScreenState extends State<PeopleScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.people_outline, size: 40, color: OffMeshTheme.textTertiary),
+                            const Icon(
+                              Icons.people_outline,
+                              size: 40,
+                              color: OffMeshTheme.textTertiary,
+                            ),
                             const SizedBox(height: 12),
                             const Text(
                               'No contacts found',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: OffMeshTheme.textPrimary),
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: OffMeshTheme.textPrimary,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             const Text(
-                              'Scan a friend\'s QR card to begin messaging offline.',
-                              style: TextStyle(fontSize: 13, color: OffMeshTheme.textSecondary),
+                              'Paste a friend\'s contact card to begin.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: OffMeshTheme.textSecondary,
+                              ),
                             ),
                             const SizedBox(height: 16),
                             ElevatedButton.icon(
@@ -210,22 +268,29 @@ class _PeopleScreenState extends State<PeopleScreen> {
                       )
                     : ListView.separated(
                         itemCount: contacts.length,
-                        separatorBuilder: (_, __) => const Divider(
+                        separatorBuilder: (_, _) => const Divider(
                           color: OffMeshTheme.border,
                           height: 1,
                           indent: 68,
                         ),
                         itemBuilder: (context, i) {
                           final c = contacts[i];
-                          final safetyCodeFormatted = engine.getSafetyCodeFor(c);
+                          final safetyCodeFormatted = engine.getSafetyCodeFor(
+                            c,
+                          );
 
                           return ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
                             leading: CircleAvatar(
                               radius: 20,
                               backgroundColor: OffMeshTheme.actionPrimary,
                               child: Text(
-                                c.name.isNotEmpty ? c.name[0].toUpperCase() : '?',
+                                c.name.isNotEmpty
+                                    ? c.name[0].toUpperCase()
+                                    : '?',
                                 style: const TextStyle(
                                   color: OffMeshTheme.actionOnPrimary,
                                   fontWeight: FontWeight.bold,
@@ -244,7 +309,11 @@ class _PeopleScreenState extends State<PeopleScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 6),
-                                const Icon(Icons.verified, size: 14, color: OffMeshTheme.statusSuccess),
+                                const Icon(
+                                  Icons.person_outline,
+                                  size: 14,
+                                  color: OffMeshTheme.textSecondary,
+                                ),
                               ],
                             ),
                             subtitle: Text(
@@ -256,7 +325,10 @@ class _PeopleScreenState extends State<PeopleScreen> {
                               ),
                             ),
                             trailing: IconButton(
-                              icon: const Icon(Icons.chevron_right, color: OffMeshTheme.textTertiary),
+                              icon: const Icon(
+                                Icons.chevron_right,
+                                color: OffMeshTheme.textTertiary,
+                              ),
                               onPressed: () => _showContactProfile(context, c),
                             ),
                             onTap: () => _showContactProfile(context, c),
@@ -293,7 +365,10 @@ class _PeopleScreenState extends State<PeopleScreen> {
               const Text(
                 'Scan in person to add contact and exchange public encryption keys.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: OffMeshTheme.textSecondary),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: OffMeshTheme.textSecondary,
+                ),
               ),
               const SizedBox(height: 16),
               Container(
@@ -324,16 +399,28 @@ class _PeopleScreenState extends State<PeopleScreen> {
                         card.cardString,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 10, fontFamily: 'monospace', color: OffMeshTheme.textSecondary),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontFamily: 'monospace',
+                          color: OffMeshTheme.textSecondary,
+                        ),
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.copy, size: 16, color: OffMeshTheme.textPrimary),
+                      icon: const Icon(
+                        Icons.copy,
+                        size: 16,
+                        color: OffMeshTheme.textPrimary,
+                      ),
                       tooltip: 'Copy Card String',
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: card.cardString));
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Contact card string copied to clipboard')),
+                          const SnackBar(
+                            content: Text(
+                              'Contact card string copied to clipboard',
+                            ),
+                          ),
                         );
                       },
                     ),
@@ -353,10 +440,11 @@ class _PeopleScreenState extends State<PeopleScreen> {
     );
   }
 
-  void _showAddContactDialog(BuildContext context) {
-    final ctrl = TextEditingController();
+  Future<void> _showAddContactDialog(BuildContext context) async {
+    final engine = EngineScope.of(context);
+    var cardText = '';
 
-    showDialog(
+    await showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
@@ -365,18 +453,25 @@ class _PeopleScreenState extends State<PeopleScreen> {
             borderRadius: BorderRadius.circular(OffMeshTheme.radiusCard),
             side: const BorderSide(color: OffMeshTheme.border),
           ),
-          title: const Text('Add Contact', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          title: const Text(
+            'Add Contact',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Paste the "NL1:..." contact card string obtained from an optical QR scan or direct exchange:',
-                style: TextStyle(fontSize: 13, color: OffMeshTheme.textSecondary, height: 1.3),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: OffMeshTheme.textSecondary,
+                  height: 1.3,
+                ),
               ),
               const SizedBox(height: 12),
               TextField(
-                controller: ctrl,
+                onChanged: (value) => cardText = value,
                 maxLines: 3,
                 style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
                 decoration: const InputDecoration(
@@ -388,23 +483,32 @@ class _PeopleScreenState extends State<PeopleScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel', style: TextStyle(color: OffMeshTheme.textSecondary)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: OffMeshTheme.textSecondary),
+              ),
             ),
             ElevatedButton(
-              onPressed: () {
-                final text = ctrl.text.trim();
-                if (text.isNotEmpty) {
-                  final added = NearLinkEngine.instance.addContactFromCardString(text);
+              onPressed: () async {
+                final text = cardText.trim();
+                if (text.isEmpty || engine.isBusy) return;
+                try {
+                  final added = await engine.addContactFromCardString(text);
+                  if (!ctx.mounted) return;
                   Navigator.pop(ctx);
-                  if (added != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Added verified contact: ${added.name}')),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Invalid NL1 contact card format')),
-                    );
-                  }
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Saved ${added.name}. Compare safety codes in person.',
+                      ),
+                    ),
+                  );
+                } catch (e) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Contact not saved: $e')),
+                  );
                 }
               },
               child: const Text('Add Contact'),
@@ -416,7 +520,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
   }
 
   void _showContactProfile(BuildContext context, Contact c) {
-    final formattedSafety = NearLinkEngine.instance.getSafetyCodeFor(c);
+    final formattedSafety = EngineScope.of(context).getSafetyCodeFor(c);
 
     showModalBottomSheet(
       context: context,
@@ -450,7 +554,11 @@ class _PeopleScreenState extends State<PeopleScreen> {
                       backgroundColor: OffMeshTheme.actionPrimary,
                       child: Text(
                         c.name.isNotEmpty ? c.name[0].toUpperCase() : '?',
-                        style: const TextStyle(fontSize: 20, color: OffMeshTheme.actionOnPrimary, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: OffMeshTheme.actionOnPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -460,13 +568,31 @@ class _PeopleScreenState extends State<PeopleScreen> {
                         children: [
                           Row(
                             children: [
-                              Text(c.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: OffMeshTheme.textPrimary)),
+                              Text(
+                                c.name,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: OffMeshTheme.textPrimary,
+                                ),
+                              ),
                               const SizedBox(width: 6),
-                              const Icon(Icons.verified, size: 16, color: OffMeshTheme.statusSuccess),
+                              const Icon(
+                                Icons.person_outline,
+                                size: 16,
+                                color: OffMeshTheme.textSecondary,
+                              ),
                             ],
                           ),
                           const SizedBox(height: 2),
-                          Text('Node ID: ${c.idHex}', style: const TextStyle(fontSize: 11, fontFamily: 'monospace', color: OffMeshTheme.textSecondary)),
+                          Text(
+                            'Node ID: ${c.idHex}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontFamily: 'monospace',
+                              color: OffMeshTheme.textSecondary,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -474,13 +600,20 @@ class _PeopleScreenState extends State<PeopleScreen> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  '20-Digit Out-of-Band Safety Number',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: OffMeshTheme.textTertiary),
+                  '20-Character Out-of-Band Safety Code',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: OffMeshTheme.textTertiary,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: OffMeshTheme.surfaceSubtle,
                     borderRadius: BorderRadius.circular(8),
@@ -488,21 +621,29 @@ class _PeopleScreenState extends State<PeopleScreen> {
                   ),
                   child: Text(
                     formattedSafety,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: OffMeshTheme.textPrimary),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                      color: OffMeshTheme.textPrimary,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 6),
                 const Text(
-                  'Compare this number with your contact in person to ensure no third-party interception (MITM).',
-                  style: TextStyle(fontSize: 11, color: OffMeshTheme.textSecondary),
+                  'Compare this code with your contact in person. Saving a card alone does not verify who supplied it.',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: OffMeshTheme.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                        label: const Text('Send Message'),
+                        icon: const Icon(Icons.close, size: 18),
+                        label: const Text('Close'),
                         onPressed: () {
                           Navigator.pop(ctx);
                         },

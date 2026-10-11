@@ -1,6 +1,5 @@
 package net.nearlink.core;
 
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.util.Arrays;
@@ -36,8 +35,15 @@ public final class Sealer {
 
     public static Bundle seal(Identity me, Contact to, String text, long now, long lifetimeMs, int copies, int hopLimit)
             throws GeneralSecurityException {
-        byte[] body = text.getBytes(StandardCharsets.UTF_8);
+        byte[] body = Bytes.utf8(text);
         if (body.length > MAX_BODY) throw new IllegalArgumentException("message too long");
+        try {
+            if (!Bytes.decodeUtf8(body).equals(text)) throw new IllegalArgumentException("invalid message text");
+        } catch (Bytes.MalformedException e) { throw new IllegalArgumentException(e); }
+        if (now < 0 || lifetimeMs <= 0 || now > Long.MAX_VALUE - lifetimeMs)
+            throw new IllegalArgumentException("invalid lifetime/timestamp");
+        if (copies < 1 || copies > 255 || hopLimit < 1 || hopLimit > 255)
+            throw new IllegalArgumentException("invalid routing fields");
         byte[] msgId = Crypto.random(16);
         long expires = now + lifetimeMs;
         KeyPair eph = Crypto.genX25519();
@@ -60,20 +66,24 @@ public final class Sealer {
 
     /** Opens a bundle addressed to {@code me}. Throws on any tampering or bad signature. */
     public static Opened open(Identity me, Bundle b) throws GeneralSecurityException, Bytes.MalformedException {
+        if (me == null || b == null) throw new GeneralSecurityException("missing recipient or bundle");
+        try { b.validate(); } catch (RuntimeException e) { throw new GeneralSecurityException("invalid bundle", e); }
         if (!Arrays.equals(b.recipientId, me.id)) throw new GeneralSecurityException("not addressed to me");
         byte[] aad = b.aad();
         byte[] okm = kdf(Crypto.x25519(me.dhPriv, b.ephemeralPub), b.msgId, b.ephemeralPub, me.dhPub);
         byte[] inner = Crypto.aeadOpen(Bytes.slice(okm, 0, 32), Bytes.slice(okm, 32, 12), aad, b.ciphertext);
         Bytes.In in = new Bytes.In(inner);
         int type = in.u8();
+        if (type != TYPE_TEXT) throw new Bytes.MalformedException("unsupported message type");
         byte[] sp = in.bytes(32), dp = in.bytes(32);
         long sentAt = in.u64();
+        if (sentAt < 0) throw new Bytes.MalformedException("invalid message timestamp");
         byte[] body = in.var16(MAX_BODY);
         byte[] sig = in.bytes(64);
         in.end();
         byte[] toSign = new Bytes.Out().bytes(Bytes.utf8("NLMSG1")).bytes(aad).u8(type).bytes(sp).bytes(dp).u64(sentAt).var16(body).done();
         if (!Crypto.verify(sp, toSign, sig)) throw new GeneralSecurityException("bad sender signature");
         if (sentAt != b.createdMs) throw new GeneralSecurityException("timestamp mismatch");
-        return new Opened(sp, dp, sentAt, type, new String(body, StandardCharsets.UTF_8));
+        return new Opened(sp, dp, sentAt, type, Bytes.decodeUtf8(body));
     }
 }

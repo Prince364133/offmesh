@@ -27,7 +27,7 @@ export class GatewayManager {
     return ws !== undefined && ws.readyState === 1; // OPEN
   }
 
-  public sendToPeer(recipientIdHex: string, message: { type: string; data: any }): boolean {
+  public sendToPeer(recipientIdHex: string, message: { type: string; data?: any; [key: string]: any }): boolean {
     const ws = this.activeSockets.get(recipientIdHex);
     if (ws && ws.readyState === 1) {
       try {
@@ -43,7 +43,7 @@ export class GatewayManager {
     return false;
   }
 
-  public broadcast(message: { type: string; data: any }) {
+  public broadcast(message: { type: string; data?: any; [key: string]: any }) {
     const payload = JSON.stringify(message);
     for (const ws of this.activeSockets.values()) {
       if (ws.readyState === 1) {

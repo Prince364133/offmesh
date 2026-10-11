@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  * changes after its ACK arrives, so an interrupted transfer is simply retried next contact.
  */
 public final class SyncSession {
-    public static final int VERSION = 1, MAX_FRAME = 16 * 1024, MAX_SUMMARY = 4000;
+    public static final int VERSION = 1, MAX_FRAME = 16 * 1024, MAX_SUMMARY = 500;
     public static final int MAX_BUNDLES_IN = 200, MAX_RECEIPTS_IN = 1000;
     static final int HELLO = 1, SUMMARY = 2, RECEIPT = 3, BUNDLE = 4, ACK = 5, DONE = 6;
 
@@ -62,6 +62,7 @@ public final class SyncSession {
     private volatile byte[] peerId;
 
     public SyncSession(Node node, InputStream in, OutputStream out, long timeoutMs) {
+        if (node == null || in == null || out == null || timeoutMs <= 0) throw new IllegalArgumentException("invalid sync session arguments");
         this.node = node; this.in = new DataInputStream(in); this.out = new DataOutputStream(out); this.timeoutMs = timeoutMs;
     }
 
@@ -110,6 +111,8 @@ public final class SyncSession {
     }
 
     private void send(int type, byte[] payload) throws IOException {
+        if (type < 1 || type > 255 || payload == null || payload.length > MAX_FRAME - 1)
+            throw new IOException("frame too large or invalid");
         synchronized (out) {
             out.writeInt(payload.length + 1);
             out.writeByte(type);
@@ -119,7 +122,7 @@ public final class SyncSession {
     }
 
     private void readLoop() {
-        int bundlesIn = 0, receiptsIn = 0;
+        int bundlesIn = 0, receiptsIn = 0, malformedBundlesIn = 0;
         try {
             while (true) {
                 int len = in.readInt();
@@ -130,8 +133,10 @@ public final class SyncSession {
                 Bytes.In r = new Bytes.In(p);
                 switch (type) {
                     case HELLO: {
+                        if (peerId != null) throw new IOException("duplicate HELLO");
                         int v = r.u8(); byte[] id = r.bytes(32); r.end();
                         if (v != VERSION) throw new IOException("unsupported version " + v);
+                        if (java.util.Arrays.equals(id, node.me.id)) throw new IOException("self peer");
                         peerId = id; break;
                     }
                     case SUMMARY: {
@@ -143,14 +148,19 @@ public final class SyncSession {
                         r.end(); gotSummary.countDown(); break;
                     }
                     case RECEIPT: {
+                        if (peerId == null) throw new IOException("RECEIPT before HELLO");
                         if (++receiptsIn > MAX_RECEIPTS_IN) throw new IOException("receipt flood");
                         if (node.acceptReceipt(Receipt.decode(p))) res.receiptsIn++;
                         break;
                     }
                     case BUNDLE: {
+                        if (peerId == null) throw new IOException("BUNDLE before HELLO");
                         if (++bundlesIn > MAX_BUNDLES_IN) throw new IOException("bundle flood");
                         Bundle b;
-                        try { b = Bundle.decode(p); } catch (Bytes.MalformedException e) { continue; } // drop malformed, keep session
+                        try { b = Bundle.decode(p); } catch (Bytes.MalformedException e) {
+                            if (++malformedBundlesIn > 16) throw new IOException("malformed bundle flood");
+                            continue;
+                        }
                         Receipt[] rc = new Receipt[1];
                         int code = node.acceptBundle(b, rc);
                         res.bundlesReceived++;
@@ -161,12 +171,19 @@ public final class SyncSession {
                         break;
                     }
                     case ACK: {
+                        if (peerId == null) throw new IOException("ACK before HELLO");
                         byte[] id = r.bytes(16); int code = r.u8(); r.end();
+                        if (code < Node.ACK_RELAYED || code > Node.ACK_REFUSED) throw new IOException("invalid ACK code");
                         Integer given; synchronized (pendingAcks) { given = pendingAcks.remove(Bytes.hex(id)); }
-                        if (given != null) { res.bundlesAcked++; node.onAck(peerId, id, code, given); }
+                        if (given != null) {
+                            if (code <= Node.ACK_DUPLICATE) res.bundlesAcked++;
+                            node.onAck(peerId, id, code, given);
+                        }
                         break;
                     }
-                    case DONE: peerDone = true; break;
+                    case DONE:
+                        if (peerId == null) throw new IOException("DONE before HELLO");
+                        r.end(); peerDone = true; break;
                     default: break; // unknown frame types ignored for forward compatibility
                 }
             }

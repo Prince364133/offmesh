@@ -26,3 +26,7 @@ __pycache__/
 apps/docs/static/downloads/
 *.old
 apps/mobile/android/key.properties
+.env.prod
+offmesh-firebase-adminsdk-*.json
+google-services (*).json
+__agent__/
