@@ -41,8 +41,21 @@ class PendingOutboxMessage {
 class HavenEngine extends ChangeNotifier {
   static final HavenEngine instance = HavenEngine();
 
-  String backendUrl = const String.fromEnvironment('BACKEND_URL', defaultValue: 'http://localhost:3000');
+  static const String defaultBackendUrl = 'http://192.168.1.65:3000';
+  String backendUrl = const String.fromEnvironment('BACKEND_URL', defaultValue: defaultBackendUrl);
   String get wsUrl => backendUrl.replaceFirst('http', 'ws');
+
+  void setBackendUrl(String url) {
+    var clean = url.trim();
+    if (clean.endsWith('/')) {
+      clean = clean.substring(0, clean.length - 1);
+    }
+    if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+      clean = 'http://$clean';
+    }
+    backendUrl = clean;
+    notifyListeners();
+  }
 
   bool _isOnline = true;
   bool get isOnline => _isOnline;
@@ -67,6 +80,30 @@ class HavenEngine extends ChangeNotifier {
 
   String? _sessionToken;
   String? get sessionToken => _sessionToken;
+
+  /// Fast offline sanctuary / BLE mesh login without requiring network connection.
+  void loginOffline({String? handle, String? displayName}) {
+    final name = (displayName != null && displayName.trim().isNotEmpty)
+        ? displayName.trim()
+        : ((handle != null && handle.trim().isNotEmpty) ? handle.trim() : 'Guest Partner');
+    final uname = (handle != null && handle.trim().isNotEmpty)
+        ? handle.trim().toLowerCase().replaceAll(' ', '_')
+        : 'guest_${DateTime.now().millisecondsSinceEpoch % 10000}';
+
+    _currentUser = UserProfile(
+      id: 'local_${DateTime.now().millisecondsSinceEpoch}',
+      username: uname,
+      displayName: name,
+      email: '$uname@haven.local',
+      avatarUrl: null,
+      signPublicKey: _deviceKeys?.signPubKeyHex ?? ('0' * 64),
+      encPublicKey: _deviceKeys?.encPubKeyHex ?? ('0' * 64),
+    );
+    _sessionToken = 'offline_token_${DateTime.now().millisecondsSinceEpoch}';
+    _isOnline = false;
+    _isStealthUnlocked = true;
+    notifyListeners();
+  }
 
   CoupleInfo? _coupleInfo;
   CoupleInfo? get coupleInfo => _coupleInfo;
@@ -111,7 +148,7 @@ class HavenEngine extends ChangeNotifier {
   @visibleForTesting
   set platformAdapter(EngineAdapter adapter) => _platformAdapter = adapter;
 
-  bool _isStealthUnlocked = false;
+  bool _isStealthUnlocked = true;
   bool get isStealthUnlocked => _isStealthUnlocked;
 
   final List<Contact> _contacts = [];

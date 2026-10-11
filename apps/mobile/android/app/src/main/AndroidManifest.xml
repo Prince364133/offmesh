@@ -16,8 +16,8 @@
     <application
         android:allowBackup="false"
         android:fullBackupContent="false"
-        android:usesCleartextTraffic="false"
-        android:label="OffMesh"
+        android:usesCleartextTraffic="true"
+        android:label="OffMesh Haven"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -43,18 +43,6 @@
             </intent-filter>
         </activity>
         <!-- Activity Aliases for Dynamic Stealth App Name and Icon Switching -->
-        <activity-alias
-            android:name=".CalculatorAlias"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher"
-            android:label="Calculator"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity-alias>
 
         <activity-alias
             android:name=".NotesAlias"

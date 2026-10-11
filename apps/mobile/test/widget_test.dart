@@ -15,29 +15,15 @@ void main() {
     HavenEngine.instance.resetForTesting();
   });
 
-  testWidgets('1. OffMeshApp launches into Decoy Calculator and unlocks via secret PIN', (tester) async {
+  testWidgets('1. OffMeshApp launches directly into AuthScreen (Zero Decoy Delay)', (tester) async {
     await tester.pumpWidget(const OffMeshApp());
     await tester.pumpAndSettle();
 
-    // Verify calculator screen is active
-    expect(find.text('AC'), findsOneWidget);
-    expect(find.text('0'), findsWidgets);
-
-    // Enter PIN: 1 2 3 4 =
-    await tester.tap(find.text('1'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('2'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('3'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('4'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('='));
-    await tester.pumpAndSettle();
-
-    // App should now be unlocked and display AuthScreen
-    expect(HavenEngine.instance.isStealthUnlocked, isTrue);
+    // App should immediately display AuthScreen directly without calculator
     expect(find.text('OffMesh Haven'), findsOneWidget);
+    expect(find.text('Intimate, Double-Ratchet Encrypted Sanctuary'), findsOneWidget);
+    expect(find.text('Sign in with 180 Profile'), findsOneWidget);
+    expect(find.text('AC'), findsNothing);
   });
 
   testWidgets('2. Authenticated user displays 4-Tab Haven Navigation: Chats, Sanctuary, Nearby Mesh, Settings', (tester) async {

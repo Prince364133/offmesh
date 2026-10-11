@@ -7,7 +7,6 @@ import 'ui/screens/chats_list_screen.dart';
 import 'ui/screens/couple_pairing_screen.dart';
 import 'ui/screens/nearby_screen.dart';
 import 'ui/screens/settings_screen.dart';
-import 'ui/screens/decoy_calculator_screen.dart';
 import 'ui/screens/auth_screen.dart';
 
 void main() async {
@@ -27,26 +26,14 @@ class OffMeshApp extends StatefulWidget {
 class _OffMeshAppState extends State<OffMeshApp> {
   @override
   Widget build(BuildContext context) {
-    final haven = HavenEngine.instance;
-
-    return ListenableBuilder(
-      listenable: haven,
-      builder: (context, _) {
-        final disguise = haven.stealthSettings.appDisguise;
-        final appTitle = disguise == 'CALCULATOR'
-            ? 'Calculator'
-            : (disguise == 'NOTES' ? 'Quick Notes' : 'OffMesh Haven');
-
-        return MaterialApp(
-          title: appTitle,
-          debugShowCheckedModeBanner: false,
-          theme: OffMeshTheme.romanticTheme,
-          home: EngineScope(
-            engine: widget.engine ?? OffMeshEngine.instance,
-            child: const _AppRootRouter(),
-          ),
-        );
-      },
+    return MaterialApp(
+      title: 'OffMesh Haven',
+      debugShowCheckedModeBanner: false,
+      theme: OffMeshTheme.romanticTheme,
+      home: EngineScope(
+        engine: widget.engine ?? OffMeshEngine.instance,
+        child: const _AppRootRouter(),
+      ),
     );
   }
 }
@@ -66,21 +53,14 @@ class _AppRootRouterState extends State<_AppRootRouter> {
     return ListenableBuilder(
       listenable: haven,
       builder: (context, _) {
-        // 1. If Stealth Decoy Mode is active and not unlocked with PIN:
-        if (!haven.isStealthUnlocked && haven.stealthSettings.appDisguise == 'CALCULATOR') {
-          return DecoyCalculatorScreen(
-            onUnlocked: () => setState(() {}),
-          );
-        }
-
-        // 2. If user is not authenticated:
+        // 1. If user is not authenticated, show AuthScreen:
         if (!haven.isAuthenticated) {
           return AuthScreen(
             onAuthenticated: () => setState(() {}),
           );
         }
 
-        // 3. Authenticated & Unlocked: Main 4-Tab Couple & Mesh Navigation
+        // 2. Authenticated: Main 4-Tab Couple & Mesh Navigation
         return const MainNavigationScreen();
       },
     );

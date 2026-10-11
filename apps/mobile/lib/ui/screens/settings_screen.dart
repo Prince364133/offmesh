@@ -82,28 +82,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           body: ListView(
             padding: const EdgeInsets.symmetric(vertical: 12),
             children: [
-              // --- QUICK LOCK BUTTON ---
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    engine.lockStealth();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('App locked into Decoy Calculator mode! 🔒')),
-                    );
-                  },
-                  icon: const Icon(Icons.lock, size: 20),
-                  label: const Text('Lock App into Decoy Calculator Now'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[900],
-                    foregroundColor: OffMeshTheme.passionRose,
-                    side: const BorderSide(color: OffMeshTheme.passionRose, width: 1.2),
-                  ),
-                ),
-              ),
-
-              const Divider(color: OffMeshTheme.borderRomantic),
-
               // --- HAVEN SANCTUARY MEMBERSHIP & PLAN ($5/MO) ---
               _header('HAVEN SANCTUARY MEMBERSHIP & BILLING'),
               _buildMembershipCard(context, engine),
@@ -127,8 +105,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 8),
               ListTile(
                 leading: const Icon(Icons.password, color: OffMeshTheme.passionRose),
-                title: const Text('Decoy Unlock PIN', style: TextStyle(color: OffMeshTheme.textWhite)),
-                subtitle: const Text('Type this in the calculator followed by = to unlock', style: TextStyle(color: OffMeshTheme.textMuted, fontSize: 12)),
+                title: const Text('Sanctuary Security PIN', style: TextStyle(color: OffMeshTheme.textWhite)),
+                subtitle: const Text('Confidential PIN for sanctuary protection', style: TextStyle(color: OffMeshTheme.textMuted, fontSize: 12)),
                 trailing: SizedBox(
                   width: 80,
                   child: TextField(
@@ -394,10 +372,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildDisguiseSelector(StealthSettings settings) {
     final engine = HavenEngine.instance;
     final options = [
-      {'key': 'CALCULATOR', 'name': 'Calculator', 'icon': Icons.calculate, 'desc': 'Working Math Calc'},
+      {'key': 'OFFMESH', 'name': 'OffMesh Haven', 'icon': Icons.favorite, 'desc': 'Original Sanctuary'},
       {'key': 'NOTES', 'name': 'Quick Notes', 'icon': Icons.edit_note, 'desc': 'Yellow Notepad'},
       {'key': 'WEATHER', 'name': 'Daily Weather', 'icon': Icons.cloud, 'desc': 'Forecast Widget'},
-      {'key': 'OFFMESH', 'name': 'OffMesh Haven', 'icon': Icons.favorite, 'desc': 'Original Sanctuary'},
     ];
 
     return SingleChildScrollView(

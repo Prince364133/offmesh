@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/haven_engine.dart';
 import '../theme.dart';
 
-/// 180 Identity Universal SSO & WhatsApp 1-Tap Authentication Screen.
-/// All legacy email/password login and signup forms have been permanently retired
-/// in favor of 180 Identity RFC 6749 OAuth and WhatsApp 1-Tap sovereign authentication.
+/// Minimalistic, Elegant 180 Identity & Sovereign Sanctuary Authentication Screen.
 class AuthScreen extends StatefulWidget {
   final VoidCallback onAuthenticated;
   const AuthScreen({super.key, required this.onAuthenticated});
@@ -41,8 +39,6 @@ class _AuthScreenState extends State<AuthScreen> {
     final handle = _handleCtrl.text.trim().replaceAll('@', '');
 
     try {
-      // 180 Identity Code Generation / OIDC Flow
-      // In production, launches 180 SSO popup/deep-link; in mobile app, executes 1-Tap exchange
       final randomSuffix = Random().nextInt(999999).toString().padLeft(6, '0');
       final authCode = isWhatsApp
           ? '180_wa_otp_${DateTime.now().millisecondsSinceEpoch}_$randomSuffix'
@@ -56,7 +52,16 @@ class _AuthScreenState extends State<AuthScreen> {
 
       widget.onAuthenticated();
     } catch (e) {
-      setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+      final errStr = e.toString();
+      if (errStr.contains('SocketException') ||
+          errStr.contains('Connection refused') ||
+          errStr.contains('errno = 111') ||
+          errStr.contains('Failed host lookup')) {
+        setState(() => _error =
+            'Cannot reach server at ${engine.backendUrl}.\nMake sure phone & PC share Wi-Fi, change IP via ⚙️ icon, or enter offline.');
+      } else {
+        setState(() => _error = errStr.replaceFirst('Exception: ', ''));
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -67,20 +72,102 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
+  void _loginOffline() {
+    final handle = _handleCtrl.text.trim().replaceAll('@', '');
+    HavenEngine.instance.loginOffline(
+      handle: handle.isNotEmpty ? handle : null,
+      displayName: handle.isNotEmpty ? handle : 'Sanctuary Partner',
+    );
+    widget.onAuthenticated();
+  }
+
+  void _showServerSettingsDialog() {
+    final engine = HavenEngine.instance;
+    final urlCtrl = TextEditingController(text: engine.backendUrl);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: OffMeshTheme.romanticSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.dns_rounded, color: OffMeshTheme.passionRose, size: 22),
+            SizedBox(width: 10),
+            Text('Server Endpoint', style: TextStyle(color: OffMeshTheme.textWhite, fontSize: 18)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Backend URL (e.g. host PC IP on Wi-Fi):',
+              style: TextStyle(color: OffMeshTheme.textMuted, fontSize: 13),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: urlCtrl,
+              style: const TextStyle(color: OffMeshTheme.textWhite, fontSize: 14),
+              decoration: InputDecoration(
+                hintText: 'http://192.168.1.65:3000',
+                hintStyle: const TextStyle(color: OffMeshTheme.textDarker),
+                filled: true,
+                fillColor: OffMeshTheme.romanticBackground,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: OffMeshTheme.textMuted)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (urlCtrl.text.trim().isNotEmpty) {
+                engine.setBackendUrl(urlCtrl.text.trim());
+              }
+              Navigator.pop(ctx);
+              setState(() => _error = null);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: OffMeshTheme.passionRose,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final engine = HavenEngine.instance;
 
     return Scaffold(
       backgroundColor: OffMeshTheme.romanticBackground,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.tune_rounded, color: OffMeshTheme.textMuted, size: 20),
+            tooltip: 'Server Settings',
+            onPressed: _showServerSettingsDialog,
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Glowing Romantic Haven Shield
+                // Glowing Romantic Heart Shield
                 Container(
                   width: 80,
                   height: 80,
@@ -90,8 +177,8 @@ class _AuthScreenState extends State<AuthScreen> {
                     border: Border.all(color: OffMeshTheme.passionRose.withOpacity(0.4), width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        color: OffMeshTheme.passionRose.withOpacity(0.2),
-                        blurRadius: 24,
+                        color: OffMeshTheme.passionRose.withOpacity(0.25),
+                        blurRadius: 28,
                         spreadRadius: 2,
                       ),
                     ],
@@ -100,11 +187,13 @@ class _AuthScreenState extends State<AuthScreen> {
                     child: Icon(
                       Icons.favorite_rounded,
                       color: OffMeshTheme.passionRose,
-                      size: 42,
+                      size: 40,
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
+
+                // Title & Subtitle
                 const Text(
                   'OffMesh Haven',
                   style: TextStyle(
@@ -124,82 +213,71 @@ class _AuthScreenState extends State<AuthScreen> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: OffMeshTheme.romanticSurfaceSubtle,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: OffMeshTheme.borderRomantic),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.verified_user_rounded, color: OffMeshTheme.champagneGold, size: 14),
-                      SizedBox(width: 6),
-                      Text(
-                        'Powered by 180 Identity Universal SSO',
-                        style: TextStyle(color: OffMeshTheme.textMuted, fontSize: 11, fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 36),
 
-                // Optional Partner Handle Customization
+                // Partner Handle Input
                 TextField(
                   controller: _handleCtrl,
                   style: const TextStyle(color: OffMeshTheme.textWhite),
                   decoration: InputDecoration(
                     labelText: 'Partner Handle / Alias (Optional)',
-                    hintText: 'e.g. romeo_love, juliet_heart',
+                    hintText: 'e.g. romeo, juliet',
                     hintStyle: const TextStyle(color: OffMeshTheme.textDarker),
-                    prefixIcon: const Icon(Icons.alternate_email, color: OffMeshTheme.textMuted),
+                    prefixIcon: const Icon(Icons.alternate_email, color: OffMeshTheme.textMuted, size: 20),
                     filled: true,
                     fillColor: OffMeshTheme.romanticSurface,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: const BorderSide(color: OffMeshTheme.borderRomantic),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: const BorderSide(color: OffMeshTheme.borderRomantic),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: const BorderSide(color: OffMeshTheme.passionRoseLight),
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'No password required. Verified via 180 Sovereign Cloud.',
-                    style: TextStyle(color: OffMeshTheme.textDarker, fontSize: 11),
-                  ),
-                ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
-                // Error Banner
+                // Error Banner with option to change endpoint
                 if (_error != null)
                   Container(
                     margin: const EdgeInsets.only(bottom: 20),
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: OffMeshTheme.statusError.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: OffMeshTheme.statusError.withOpacity(0.3)),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: OffMeshTheme.statusError.withOpacity(0.35)),
                     ),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.error_outline, color: OffMeshTheme.statusError, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _error!,
-                            style: const TextStyle(color: OffMeshTheme.statusError, fontSize: 13),
-                          ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.error_outline, color: OffMeshTheme.statusError, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _error!,
+                                style: const TextStyle(color: OffMeshTheme.statusError, fontSize: 13, height: 1.3),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton.icon(
+                              onPressed: _showServerSettingsDialog,
+                              icon: const Icon(Icons.edit, size: 14, color: OffMeshTheme.passionRoseLight),
+                              label: const Text('Change IP', style: TextStyle(color: OffMeshTheme.passionRoseLight, fontSize: 12)),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -208,7 +286,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 // Primary 1-Tap CTA: Sign in with 180 Profile
                 SizedBox(
                   width: double.infinity,
-                  height: 54,
+                  height: 52,
                   child: ElevatedButton(
                     onPressed: (engine.isBusy || _isLoading180 || _isLoadingWhatsApp)
                         ? null
@@ -216,9 +294,9 @@ class _AuthScreenState extends State<AuthScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: OffMeshTheme.passionRose,
                       foregroundColor: Colors.white,
-                      elevation: 4,
-                      shadowColor: OffMeshTheme.passionRose.withOpacity(0.5),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      elevation: 3,
+                      shadowColor: OffMeshTheme.passionRose.withOpacity(0.4),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                     child: _isLoading180
                         ? const SizedBox(
@@ -233,26 +311,26 @@ class _AuthScreenState extends State<AuthScreen> {
                               SizedBox(width: 10),
                               Text(
                                 'Sign in with 180 Profile',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: 0.2),
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
                 // Secondary 1-Tap CTA: Continue with WhatsApp 1-Tap
                 SizedBox(
                   width: double.infinity,
-                  height: 54,
+                  height: 52,
                   child: ElevatedButton(
                     onPressed: (engine.isBusy || _isLoading180 || _isLoadingWhatsApp)
                         ? null
                         : () => _authenticateWith180(isWhatsApp: true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E7E34), // WhatsApp dark green
+                      backgroundColor: const Color(0xFF1E7E34),
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       side: const BorderSide(color: Color(0xFF25D366), width: 1.2),
                     ),
                     child: _isLoadingWhatsApp
@@ -268,49 +346,21 @@ class _AuthScreenState extends State<AuthScreen> {
                               SizedBox(width: 10),
                               Text(
                                 'Continue with WhatsApp 1-Tap',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
 
-                // Privacy & Architecture Feature Badges
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: OffMeshTheme.romanticSurface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: OffMeshTheme.borderRomantic),
-                  ),
-                  child: Column(
-                    children: [
-                      _buildSecurityPill(
-                        icon: Icons.shield_rounded,
-                        color: OffMeshTheme.statusOnline,
-                        title: 'Zero Password Storage',
-                        description: 'Ed25519 & X25519 hardware key exchange with 180 Identity.',
-                      ),
-                      const Divider(color: OffMeshTheme.borderSubtle, height: 16),
-                      _buildSecurityPill(
-                        icon: Icons.flash_on_rounded,
-                        color: OffMeshTheme.champagneGold,
-                        title: 'Instant 1-Tap WhatsApp OTP',
-                        description: 'Zero typing, zero friction authentication in seconds.',
-                      ),
-                      const Divider(color: OffMeshTheme.borderSubtle, height: 16),
-                      _buildSecurityPill(
-                        icon: Icons.visibility_off_rounded,
-                        color: OffMeshTheme.passionRoseLight,
-                        title: 'Stealth Calculator Camouflage',
-                        description: 'Disguises sanctuary behind a functional math calculator.',
-                      ),
-                    ],
+                // Offline Sanctuary Direct BLE Mesh Mode CTA
+                TextButton.icon(
+                  onPressed: _loginOffline,
+                  icon: const Icon(Icons.cell_tower_rounded, size: 18, color: OffMeshTheme.textMuted),
+                  label: const Text(
+                    'Enter Offline Mesh Mode (Direct P2P)',
+                    style: TextStyle(color: OffMeshTheme.textMuted, fontSize: 13),
                   ),
                 ),
               ],
@@ -318,52 +368,6 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSecurityPill({
-    required IconData icon,
-    required Color color,
-    required String title,
-    required String description,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.12),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: color, size: 16),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: OffMeshTheme.textWhite,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                description,
-                style: const TextStyle(
-                  color: OffMeshTheme.textMuted,
-                  fontSize: 11,
-                  height: 1.3,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

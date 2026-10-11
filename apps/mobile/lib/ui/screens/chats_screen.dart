@@ -1176,16 +1176,6 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 tooltip: 'Chat Settings & Permissions',
                 onPressed: () => _showChatSettingsSheet(context, haven),
               ),
-              IconButton(
-                icon: const Icon(Icons.lock_outline, color: OffMeshTheme.passionRose),
-                tooltip: 'Lock Sanctuary',
-                onPressed: () {
-                  haven.lockStealth();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('App locked into Decoy Calculator mode 🔒')),
-                  );
-                },
-              ),
             ],
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(1),

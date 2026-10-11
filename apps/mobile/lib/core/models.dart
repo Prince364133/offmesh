@@ -134,19 +134,19 @@ class StealthSettings {
   final String fakeBodyPreview;
 
   StealthSettings({
-    this.appDisguise = 'CALCULATOR',
+    this.appDisguise = 'OFFMESH',
     this.decoyPin = '1234',
-    this.notifDisguiseMode = 'CAMOUFLAGE',
-    this.fakeSenderTitle = 'System Update',
-    this.fakeBodyPreview = 'Sync completed successfully',
+    this.notifDisguiseMode = 'ROMANTIC',
+    this.fakeSenderTitle = 'OffMesh Haven',
+    this.fakeBodyPreview = 'New message received',
   });
 
   factory StealthSettings.fromJson(Map<String, dynamic> json) => StealthSettings(
-    appDisguise: json['appDisguise'] as String? ?? 'CALCULATOR',
+    appDisguise: json['appDisguise'] as String? ?? 'OFFMESH',
     decoyPin: json['decoyPin'] as String? ?? '1234',
-    notifDisguiseMode: json['notifDisguiseMode'] as String? ?? 'CAMOUFLAGE',
-    fakeSenderTitle: json['fakeSenderTitle'] as String? ?? 'System Update',
-    fakeBodyPreview: json['fakeBodyPreview'] as String? ?? 'Sync completed successfully',
+    notifDisguiseMode: json['notifDisguiseMode'] as String? ?? 'ROMANTIC',
+    fakeSenderTitle: json['fakeSenderTitle'] as String? ?? 'OffMesh Haven',
+    fakeBodyPreview: json['fakeBodyPreview'] as String? ?? 'New message received',
   );
 
   Map<String, dynamic> toJson() => {

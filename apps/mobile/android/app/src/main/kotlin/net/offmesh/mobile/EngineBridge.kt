@@ -76,14 +76,12 @@ internal class EngineBridge(private val activity: Activity, messenger: BinaryMes
                 val pkg = appContext.packageName
 
                 val mainComp = android.content.ComponentName(pkg, "$pkg.MainActivity")
-                val calcComp = android.content.ComponentName(pkg, "$pkg.CalculatorAlias")
                 val notesComp = android.content.ComponentName(pkg, "$pkg.NotesAlias")
                 val weatherComp = android.content.ComponentName(pkg, "$pkg.WeatherAlias")
 
                 val disableState = android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
                 val enableState = android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
 
-                pm.setComponentEnabledSetting(calcComp, if (disguise == "CALCULATOR") enableState else disableState, android.content.pm.PackageManager.DONT_KILL_APP)
                 pm.setComponentEnabledSetting(notesComp, if (disguise == "NOTES") enableState else disableState, android.content.pm.PackageManager.DONT_KILL_APP)
                 pm.setComponentEnabledSetting(weatherComp, if (disguise == "WEATHER") enableState else disableState, android.content.pm.PackageManager.DONT_KILL_APP)
                 pm.setComponentEnabledSetting(mainComp, if (disguise == "OFFMESH") enableState else disableState, android.content.pm.PackageManager.DONT_KILL_APP)

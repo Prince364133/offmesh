@@ -40,8 +40,9 @@ void main() {
       expect(decrypted, loveLetter);
     });
 
-    test('2. Decoy Calculator PIN verification unlocks stealth sanctuary', () {
+    test('2. Decoy PIN verification unlocks stealth sanctuary', () {
       final engine = HavenEngine.instance;
+      engine.lockStealth();
 
       expect(engine.isStealthUnlocked, false);
 
